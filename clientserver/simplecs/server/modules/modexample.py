@@ -132,4 +132,9 @@ class ModExample(ModuleBase):
         if isinstance(max_rnd, numbers.Number):
             self._max_rnd = max_rnd
             return True
-        raise Exception(f'Invalid value for max_rnd ({max_rnd}), it must be a number')
+        try:
+            val = float(max_rnd)
+            self._max_rnd = val
+            return True
+        except:
+            raise Exception(f'Invalid value for max_rnd ({max_rnd}), it must be a number')

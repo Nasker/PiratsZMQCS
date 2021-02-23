@@ -65,9 +65,9 @@ class LoggerWindow(QWidget):
 
         self._ui = Ui_LoggerWindow()
         self._ui.setupUi(self)
-        self._ui.textEdit.setFontPointSize(15)
         robotomono = QFont("Roboto")
         self._ui.textEdit.setFont(robotomono)
+        self._ui.textEdit.setFontPointSize(15)
 
 
 class LoggerWindowModule(Module):
