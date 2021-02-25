@@ -14,10 +14,16 @@ __maintainer__ = 'Otger Ballester'
 __email__ = 'otger@ifae.es'
 
 import os
-import pwd
+if os.name != 'nt':
+    import pwd
+else:
+    pwd = None
 from pathlib import Path
 
-user = pwd.getpwuid(os.getuid())[0]
+if pwd:
+    user = pwd.getpwuid(os.getuid())[0]
+else:
+    user = None
 
 NAME = 'simplecs'
 
