@@ -15,16 +15,17 @@ __email__ = 'otger@ifae.es'
 
 import os
 import pwd
+from pathlib import Path
 
 user = pwd.getpwuid(os.getuid())[0]
 
 NAME = 'simplecs'
 
 if user == 'root':
-    BASE_PATH = '/var/NAME/'
-    LOGS_PATH = '/var/log/NAME'
+    BASE_PATH = f'/var/{NAME}/'
+    LOGS_PATH = f'/var/log/{NAME}'
 else:
-    BASE_PATH = os.path.expanduser('~/NAME')
+    BASE_PATH = os.path.join(Path.home(), NAME)
     LOGS_PATH = os.path.join(BASE_PATH, 'log')
 
 CONFIGURATION_FILE_PATH = os.path.join(BASE_PATH, 'config.json')
