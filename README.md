@@ -1,3 +1,8 @@
+# PiratsZMQCS
+This is a fork from zmqs example intended to provide a framework for working on an application of it for the Pirats project
+
+The following is just as the same in the original repo
+
 # zmqcs Example
 
 This repository show how to use the library zmqcs to develop client server applications.
