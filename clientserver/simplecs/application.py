@@ -4,6 +4,7 @@ from simplecs.server.server import Server
 from simplecs.server.modules.modHandler import ModHandler
 
 from simplecs.server.modules.modexample import ModExample
+from simplecs.server.modules.modPiratsTemp import ModPiratsTemp
 
 from simplecs.config import FullConfig
 
@@ -40,6 +41,7 @@ class ServerApplication(object):
         # Load modules
         # If modules require a start (e.g. to start threads, it must be done on the start
         self._mod_handler.register_module(ModExample(app=self))
+        self._mod_handler.register_module(ModPiratsTemp(app=self))
 
     def start(self):
         # starts the threads of the server (both req-rep and pub-sub)

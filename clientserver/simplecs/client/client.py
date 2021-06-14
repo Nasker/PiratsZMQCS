@@ -3,6 +3,7 @@
 from zmqcs.client import zmqClient
 from zmqcs.common.message import CommandMSG, ErrorMSG
 from simplecs.client.modules.modexample import ModExample
+from simplecs.client.modules.modPiratsTemp import ModPiratsTemp
 
 
 class Client(zmqClient):
@@ -11,6 +12,7 @@ class Client(zmqClient):
         super().__init__(en_async=en_async)
         # Compose the client modules here so they can be accesible
         self.modex = ModExample(client=self)
+        self.modpiratstemp = ModPiratsTemp(client=self)
 
     def command(self, command, kwargs={}):
         """
