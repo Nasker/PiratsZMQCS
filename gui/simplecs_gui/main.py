@@ -17,6 +17,7 @@ if __name__ == '__main__':
 
     from PyQt5.QtWidgets import QApplication
     from PyQt5 import QtGui
+    from qt_material import apply_stylesheet
     from simplecs_gui.system.logger import log
     from simplecs_gui.ui.mainwindow import MainWindow
     from simplecs_gui.system.paths import create_paths_if_not_exists, CONFIG_YAML_FILE_PATH
@@ -41,5 +42,6 @@ if __name__ == '__main__':
     log.info(f'Backend created. Took {time.time() - s:.2}s to create the backend')
     app = QApplication(sys.argv)
     window = MainWindow(config=conf, backend=backend)
+    apply_stylesheet(app, theme='dark_teal.xml')
     window.show()
     app.exec_()
