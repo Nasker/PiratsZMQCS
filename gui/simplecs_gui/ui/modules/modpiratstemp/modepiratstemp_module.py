@@ -1,14 +1,14 @@
 """ GUI for the Example module
 
 """
-__author__ = 'Otger Ballester'
-__copyright__ = 'Copyright 2021'
-__date__ = '22/2/21'
-__credits__ = ['Otger Ballester', ]
+__author__ = 'Oscar Martinez'
+__copyright__ = 'Copyleft 2021'
+__date__ = '14/6/21'
+__credits__ = ['Otger Ballester', 'Oscar Martinez']
 __license__ = 'CC0 1.0 Universal'
 __version__ = '0.1'
-__maintainer__ = 'Otger Ballester'
-__email__ = 'otger@ifae.es'
+__maintainer__ = 'Oscar Martinez'
+__email__ = 'omartinez@ifae.es'
 
 import os
 from PyQt5.QtWidgets import QWidget, QAction
@@ -75,14 +75,14 @@ class ModPiratsTempBigWidget(QWidget):
         self._parent = module.parent
         super().__init__(self._parent)
         self._events = EventCounter()
-        self._plot = None
+        self. _plot = None
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
-        ret_val = self._parent.backend.comm_client.modex.set_max_rnd(value)
-        log.debug(f"Received answer for set_max_rnd command: '{ret_val.as_dict}'")
+        ret_val = self._parent.backend.comm_client.modpiratstemp.set_temp_channel(value)
+        log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -93,16 +93,16 @@ class ModPiratsTempBigWidget(QWidget):
 
     def _recvd_temp(self, async_msg):
         # retrieve data
-        rnd = async_msg.value.get('random', 0)
+        temp = async_msg.value.get('current_temp', 0)
         # write to label
-        self._ui.lbl_last_temp.setText(f"{rnd:.3f}")
+        self._ui.lbl_last_temp.setText(f"{temp:.3f}")
         # add value to events and clean them (to make sure only retain 1 minute of data)
-        self._events.new_event(rnd)
+        self._events.new_event(temp)
 
         self._ui.lbl_avg_minute.setText(f"{self._events.avg:.4f}")
         self._ui.lbl_events_minute.setText(f"{self._events.len}")
         x, y = self._events.averages_chart_data
-        log.debug(f"widget id in _recvd_random: {id(self)}")
+        log.debug(f"widget id in _recvd_temp: {id(self)}")
         log.debug(f"self._plot type: {type(self._plot)}")
         self._plot.setData(x=x, y=y)
 
@@ -124,7 +124,7 @@ class ModPiratsTempBigWidget(QWidget):
         self._plot.setPen((200, 200, 100))
 
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
-        self._parent.backend.signaler.sign_be_comm_async_pirats_temp.connect(self._recvd_temp)
+        self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
 
 
 class ModPiratsTempModule(Module):

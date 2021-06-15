@@ -89,6 +89,7 @@ class AsyncReceiver(object):
         # This should be in a module handler but I do not have time now
         # For each module that generates asyncs, register it here, so you have the signaler functionality for that async
         self._be.comm_client.async_subscribe('modex_random_number', async_callback)
+        self._be.comm_client.async_subscribe('modpiratstemp_current_temp', async_callback)
 
     def _register_asyncs(self):
         # This ones simply keep count of how many asyncs have been received of each type and holds the last one

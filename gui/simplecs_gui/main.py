@@ -42,6 +42,6 @@ if __name__ == '__main__':
     log.info(f'Backend created. Took {time.time() - s:.2}s to create the backend')
     app = QApplication(sys.argv)
     window = MainWindow(config=conf, backend=backend)
-    apply_stylesheet(app, theme='dark_teal.xml')
+    apply_stylesheet(app, theme='dark_amber.xml')
     window.show()
     app.exec_()
