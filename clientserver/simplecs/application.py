@@ -4,7 +4,7 @@ from simplecs.server.server import Server
 from simplecs.server.modules.modHandler import ModHandler
 
 from simplecs.server.modules.modexample import ModExample
-from simplecs.server.modules.modPiratsTemp import ModPiratsTemp
+from simplecs.server.modules.modPiratsTempServer import ModPiratsTemp
 
 from simplecs.config import FullConfig
 

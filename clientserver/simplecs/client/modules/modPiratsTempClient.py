@@ -14,7 +14,7 @@ __maintainer__ = 'Oscar Martinez'
 __email__ = 'omartinez@ifae.es'
 
 from simplecs.logger import get_logger
-from simplecs.server.modules.modPiratsTempBase import ModPiratsTempBase as ServerModPiratsTemplate
+from simplecs.server.modules.modPiratsTempServerBase import ModPiratsTempBase as ServerModPiratsTemplate
 from simplecs.client.modules.modbase import ClientModuleBase
 
 log = get_logger('client_pirats_temp_mod')

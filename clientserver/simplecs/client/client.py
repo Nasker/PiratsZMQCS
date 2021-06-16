@@ -3,7 +3,7 @@
 from zmqcs.client import zmqClient
 from zmqcs.common.message import CommandMSG, ErrorMSG
 from simplecs.client.modules.modexample import ModExample
-from simplecs.client.modules.modPiratsTemp import ModPiratsTemp
+from simplecs.client.modules.modPiratsTempClient import ModPiratsTemp
 
 
 class Client(zmqClient):

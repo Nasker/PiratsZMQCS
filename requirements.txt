@@ -5,4 +5,4 @@ pyqtgraph==0.12.1
 pyzmq==22.1.0
 zmqcs==0.1.0
 qt-material==2.8.8
-piratslib==0.1.1
+piratslib==0.1.2

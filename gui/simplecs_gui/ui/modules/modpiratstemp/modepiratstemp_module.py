@@ -11,6 +11,7 @@ __maintainer__ = 'Oscar Martinez'
 __email__ = 'omartinez@ifae.es'
 
 import os
+import colorsys
 from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtGui import QIcon, QFont
 from simplecs_gui.system.logger import get_logger
@@ -23,6 +24,7 @@ from functools import reduce
 
 log = get_logger('modpiratstemp_gui')
 
+colors = ['eb3434','ebe834','5feb34','34e5eb','3459eb','9934eb','eb34d0','eb8934']
 
 class EventCounter:
     def __init__(self, interval=60):
@@ -74,15 +76,21 @@ class ModPiratsTempBigWidget(QWidget):
         self._module = module
         self._parent = module.parent
         super().__init__(self._parent)
-        self._events = EventCounter()
-        self. _plot = None
+        # self._events = EventCounter()
+        self._plot = None
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
+        self._events_list = []
+        self._events_list.append(EventCounter())
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
         ret_val = self._parent.backend.comm_client.modpiratstemp.set_temp_channel(value)
+        created_channels = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
+        self._events_list.clear()
+        self._events_list = [EventCounter() for _ in range(0, created_channels)]
+
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -93,28 +101,25 @@ class ModPiratsTempBigWidget(QWidget):
 
     def _recvd_temp(self, async_msg):
         # retrieve data
-        temp = async_msg.value.get('current_temp', 0)
+        temp_list = async_msg.value.get('current_temp', 0)
         # write to label
-        self._ui.lbl_last_temp.setText(f"{temp:.3f}")
-        # add value to events and clean them (to make sure only retain 1 minute of data)
-        self._events.new_event(temp)
-
-        self._ui.lbl_avg_minute.setText(f"{self._events.avg:.4f}")
-        self._ui.lbl_events_minute.setText(f"{self._events.len}")
-        x, y = self._events.averages_chart_data
-        log.debug(f"widget id in _recvd_temp: {id(self)}")
-        log.debug(f"self._plot type: {type(self._plot)}")
-        self._plot.setData(x=x, y=y)
+        # temp = temp_list[0]['1']
+        temp_shown_str =''
+        for n,temp_dict in enumerate(temp_list):
+            for key, value in temp_dict.items():
+                temp_shown_str += (f'-CH{key}: {value:.2f} ºC   ')
+                self._events_list[n].new_event(value)
+                x, y = self._events_list[n].averages_chart_data
+                log.debug(f'-{n}: {y}')
+                self._plot.setData(x=x, y=y, pen=colors[n], thickness=3)
+        self._ui.lbl_last_temp.setText(temp_shown_str)
 
     def _setup_ui(self):
         self._ui = Ui_ModulePiratsTempBig()
         self._ui.setupUi(self)
 
         robotomono15 = QFont("Roboto", 15)
-        robotomono25 = QFont("Roboto", 25)
-        self._ui.lbl_avg_minute.setFont(robotomono15)
-        self._ui.lbl_events_minute.setFont(robotomono15)
-        self._ui.lbl_last_temp.setFont(robotomono25)
+        self._ui.lbl_last_temp.setFont(robotomono15)
 
         # Add chart
         self._plot = self._ui.chart.plot()

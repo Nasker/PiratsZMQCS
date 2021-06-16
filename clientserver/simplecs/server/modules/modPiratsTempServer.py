@@ -18,7 +18,7 @@ __email__ = 'omartinez@ifae.es'
 from simplecs.logger import get_logger
 import datetime
 from threading import Thread, Event
-from simplecs.server.modules.modPiratsTempBase import ModPiratsTempBase
+from simplecs.server.modules.modPiratsTempServerBase import ModPiratsTempBase
 from piratslib.controlNsensing.TemperatureSense import TemperatureSense
 
 import numbers
@@ -32,21 +32,18 @@ class ModPiratsTemp(ModPiratsTempBase):
         self._th = Thread(target=self._run)
         self._pirats_temp_sense = None
         self._th_out = Event()
-        self._temp_channel = 1
+        self._temp_channels_list = [1]
 
     def _pub_current_temp(self, value):
-        # This is what actually publishes the number to the clients
-        # Make sure that the topic used here is the same on cls._async_topics
-        # It is a good policy to use the name of the module as a prefix
-        # Do not separate the topics with dots or dashes, name of the topic must be a valid python variable name
         self.app.server.pub_async('modpiratstemp_current_temp', value)
 
     def _run(self):
         # What is executed inside the thread
         count = 0
-        while not self._th_out.wait(0.1):
+        while not self._th_out.wait(0.5):
+            temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
             t = {'ts': datetime.datetime.utcnow().timestamp(),
-                 'current_temp': self._pirats_temp_sense.get_temp(self._temp_channel)}
+                 'current_temp': temps_list}
             self._pub_current_temp(t)
             count += 1
             if count % 100 == 0:
@@ -71,15 +68,13 @@ class ModPiratsTemp(ModPiratsTempBase):
         whatever = f'{whatever} que caló!'
         return whatever
 
-    def set_temp_channel(self, temp_channel):
-        temp_channel = int(temp_channel)
-        if isinstance(temp_channel, numbers.Number):
-            log.debug(f'Temp channel is a {type(temp_channel)} with value {temp_channel}')
-            self._temp_channel = temp_channel
-            return True
+    def set_temp_channel(self, temp_channels_str):
         try:
-            val = float(temp_channel)
-            self._temp_channel = val
+            if not ',' in temp_channels_str:
+                self._temp_channels_list = [int(temp_channels_str)]
+            else:
+                self._temp_channels_list = list(map(int, temp_channels_str.split(',')))
+            log.debug(self._temp_channels_list)
             return True
         except:
-            raise Exception(f'Invalid value for set channel ({temp_channel}), it must be a number')
+            raise Exception(f'Invalid value for set channel ({temp_channels_str}), it must be a number or a list')
