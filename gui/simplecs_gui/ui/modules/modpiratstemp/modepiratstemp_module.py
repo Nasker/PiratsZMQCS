@@ -77,7 +77,8 @@ class ModPiratsTempBigWidget(QWidget):
         self._parent = module.parent
         super().__init__(self._parent)
         # self._events = EventCounter()
-        self._plot = None
+        # self._plot = None
+        self._plots = []
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
         self._events_list = []
@@ -90,6 +91,9 @@ class ModPiratsTempBigWidget(QWidget):
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._events_list.clear()
         self._events_list = [EventCounter() for _ in range(0, created_channels)]
+        self._plots.clear()
+        self._plots = [self._ui.chart.plot() for _ in range(0, created_channels)]
+        # self._ui.chart.reset()
 
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
@@ -110,8 +114,8 @@ class ModPiratsTempBigWidget(QWidget):
                 temp_shown_str += (f'-CH{key}: {value:.2f} ºC   ')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
-                log.debug(f'-{n}: {y}')
-                self._plot.setData(x=x, y=y, pen=colors[n], thickness=3)
+                # log.debug(f'-{n}: {y}')
+                self._plots[n].setData(x=x, y=y, pen=colors[n], thickness=3)
         self._ui.lbl_last_temp.setText(temp_shown_str)
 
     def _setup_ui(self):
@@ -122,11 +126,14 @@ class ModPiratsTempBigWidget(QWidget):
         self._ui.lbl_last_temp.setFont(robotomono15)
 
         # Add chart
-        self._plot = self._ui.chart.plot()
+        # self._plot = self._ui.chart.plot()
+        self._plots.append(self._ui.chart.plot())
+
         log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
-        log.debug(f"self._plot type: {type(self._plot)}")
+        log.debug(f"self._plot type: {type(self._plots[0])}")
         log.debug(f"widget id in setup_ui: {id(self)}")
-        self._plot.setPen((200, 200, 100))
+        # self._plot.setPen((200, 200, 100))
+        self._plots[0].setPen((200, 200, 100))
 
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
