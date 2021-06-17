@@ -10,7 +10,8 @@ from simplecs_gui.system.logger import get_logger
 from simplecs_gui.ui.modules.logger_window.logger_window import LoggerWindowModule
 from simplecs_gui.ui.modules.daq_connection.daq_conn_module import DaqConnModule
 from simplecs_gui.ui.modules.modex.modex_module import ModExModule
-from simplecs_gui.ui.modules.modpiratstemp.modepiratstemp_module import ModPiratsTempModule
+from simplecs_gui.ui.modules.modpiratstemp.modpiratstemp_module import ModPiratsTempModule
+from simplecs_gui.ui.modules.modpiratsweight.modpiratsweight_module import ModPiratsWeightModule
 
 log = get_logger('mainwindow')
 
@@ -34,6 +35,7 @@ class MainWindow(QMainWindow):
         # This should be moved to a mod handler, is sooooo ugly here
         self._add_example_module()
         self._add_piratstemp_module()
+        self._add_piratsweight_module()
 
     @property
     def toolbar(self):
@@ -70,6 +72,12 @@ class MainWindow(QMainWindow):
         mod.set_action_to_toolbar()
         log.info('Created pirats temperature action')
         self._modules['modpiratstemp'] = mod
+
+    def _add_piratsweight_module(self):
+        mod = ModPiratsWeightModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats weight action')
+        self._modules['modpiratsweight'] = mod
 
     def closeEvent(self, event):
         """
