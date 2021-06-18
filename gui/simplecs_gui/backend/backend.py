@@ -28,6 +28,7 @@ class Signaler(QObject):
     sign_be_comm_async_modex_random_number = pyqtSignal('PyQt_PyObject')
     sign_be_comm_async_modpiratstemp_current_temp = pyqtSignal('PyQt_PyObject')
     sign_be_comm_async_modpiratsweight_current_weight = pyqtSignal('PyQt_PyObject')
+    sign_be_comm_async_modpiratsvoltage_current_voltage = pyqtSignal('PyQt_PyObject')
 
     def __init__(self, parent):
         super().__init__(parent)

@@ -42,6 +42,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         count = 0
         while not self._th_out.wait(0.1 ):
             temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
+            # log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
             t = {'ts': datetime.datetime.utcnow().timestamp(),
                  'current_temp': temps_list}
             self._pub_current_temp(t)

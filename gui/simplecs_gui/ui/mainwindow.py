@@ -12,6 +12,7 @@ from simplecs_gui.ui.modules.daq_connection.daq_conn_module import DaqConnModule
 from simplecs_gui.ui.modules.modex.modex_module import ModExModule
 from simplecs_gui.ui.modules.modpiratstemp.modpiratstemp_module import ModPiratsTempModule
 from simplecs_gui.ui.modules.modpiratsweight.modpiratsweight_module import ModPiratsWeightModule
+from simplecs_gui.ui.modules.modpiratsvoltage.modpiratsvoltage_module import ModPiratsVoltageModule
 
 log = get_logger('mainwindow')
 
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow):
         self._add_example_module()
         self._add_piratstemp_module()
         self._add_piratsweight_module()
+        self._add_piratsvoltage_module()
 
     @property
     def toolbar(self):
@@ -78,6 +80,12 @@ class MainWindow(QMainWindow):
         mod.set_action_to_toolbar()
         log.info('Created pirats weight action')
         self._modules['modpiratsweight'] = mod
+
+    def _add_piratsvoltage_module(self):
+        mod = ModPiratsVoltageModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats voltage action')
+        self._modules['modpiratsvoltage'] = mod
 
     def closeEvent(self, event):
         """

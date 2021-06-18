@@ -17,12 +17,12 @@ from PyQt5.QtGui import QIcon, QFont
 from simplecs_gui.system.logger import get_logger
 from simplecs_gui.ui.modules.module import Module
 
-from simplecs_gui.ui.modules.modpiratsweight.modpiratsweight_big_ui import Ui_ModulePiratsWeightBig
+from simplecs_gui.ui.modules.modpiratsvoltage.modpiratsvoltage_big_ui import Ui_ModulePiratsVoltageBig
 
 import datetime
 from functools import reduce
 
-log = get_logger('modpiratstemp_gui')
+log = get_logger('modpiratsvoltage_gui')
 
 colors = ['eb3434','ebe834','5feb34','34e5eb','3459eb','9934eb','eb34d0','eb8934']
 
@@ -71,7 +71,7 @@ class EventCounter:
         return self._avgs_ts, self._avgs
 
 
-class ModPiratsWeightBigWidget(QWidget):
+class ModPiratsVoltageBigWidget(QWidget):
     def __init__(self, module):
         self._module = module
         self._parent = module.parent
@@ -86,7 +86,7 @@ class ModPiratsWeightBigWidget(QWidget):
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
-        ret_val = self._parent.backend.comm_client.modpiratstemp.set_temp_channel(value)
+        ret_val = self._parent.backend.comm_client.modpiratsvoltage.set_voltage_channel(value)
         created_channels = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._events_list.clear()
@@ -103,28 +103,28 @@ class ModPiratsWeightBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
-    def _recvd_weight(self, async_msg):
+    def _recvd_voltage(self, async_msg):
         # retrieve data
-        weight_list = async_msg.value.get('current_weight', 0)
-        log.debug(f"WEIGHT LIST ON GUI MODULE{weight_list}")
+        voltage_list = async_msg.value.get('current_voltage', 0)
+        log.debug(f"VOLTAGE LIST ON GUI MODULE{voltage_list}")
         # write to label
-        # temp = temp_list[0]['1']
-        weight_shown_str =''
-        for n,temp_dict in enumerate(weight_list):
-            for key, value in temp_dict.items():
-                weight_shown_str += (f'-CH{key}: {value:.2f} Kg   ')
+        # voltage = voltage_list[0]['1']
+        voltage_shown_str =''
+        for n,voltage_dict in enumerate(voltage_list):
+            for key, value in voltage_dict.items():
+                voltage_shown_str += (f'-CH{key}: {value:.2f} Kg   ')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
                 # log.debug(f'-{n}: {y}')
                 self._plots[n].setData(x=x, y=y, pen=colors[n], thickness=3)
-        self._ui.lbl_last_weight.setText(weight_shown_str)
+        self._ui.lbl_last_voltage.setText(voltage_shown_str)
 
     def _setup_ui(self):
-        self._ui = Ui_ModulePiratsWeightBig()
+        self._ui = Ui_ModulePiratsVoltageBig()
         self._ui.setupUi(self)
 
         robotomono15 = QFont("Roboto", 15)
-        self._ui.lbl_last_weight.setFont(robotomono15)
+        self._ui.lbl_last_voltage.setFont(robotomono15)
 
         # Add chart
         # self._plot = self._ui.chart.plot()
@@ -137,10 +137,10 @@ class ModPiratsWeightBigWidget(QWidget):
         self._plots[0].setPen((200, 200, 100))
 
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
-        self._parent.backend.signaler.sign_be_comm_async_modpiratsweight_current_weight.connect(self._recvd_weight)
+        self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
 
 
-class ModPiratsWeightModule(Module):
+class ModPiratsVoltageModule(Module):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -151,10 +151,10 @@ class ModPiratsWeightModule(Module):
 
     def _set_action(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
-        ico_path = os.path.join(dirname, 'media', 'weight_ico.png')
-        action = QAction(QIcon(ico_path), "Pirats Weight", self._parent)
-        action.setStatusTip("Open Pirats Weight widget")
-        action.triggered.connect(self.show_modpiratsweight)
+        ico_path = os.path.join(dirname, 'media', 'voltage_ico.png')
+        action = QAction(QIcon(ico_path), "Pirats Voltage", self._parent)
+        action.setStatusTip("Open Pirats Voltage widget")
+        action.triggered.connect(self.show_modpiratsvoltage)
         # log.debug(f"dirname: {dirname}")
         # log.debug(f"icon: {ico_path}")
         # log.debug(f"icon exists: {os.path.exists(ico_path)}")
@@ -167,9 +167,9 @@ class ModPiratsWeightModule(Module):
     def parent(self):
         return self._parent
 
-    def show_modpiratsweight(self):
+    def show_modpiratsvoltage(self):
         if self._widget is None:
-            self._widget = ModPiratsWeightBigWidget(module=self)
+            self._widget = ModPiratsVoltageBigWidget(module=self)
             print("adding sub window to mdi")
             self._parent.central.addSubWindow(self._widget)
         self._widget.show()

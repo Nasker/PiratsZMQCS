@@ -32,21 +32,18 @@ class ModPiratsWeight(ModPiratsWeightBase):
         self._th = Thread(target=self._run)
         self._pirats_weight_sense = None
         self._th_out = Event()
-        self._weight_channels_list = [1]
+        self._weight_channels_list = [0]
 
     def _pub_current_weight(self, value):
-        self.app.server.pub_async('modpiratstemp_current_weight', value)
+        self.app.server.pub_async('modpiratsweight_current_weight', value)
 
     def _run(self):
         # What is executed inside the thread
         count = 0
-        while not self._th_out.wait(0.1):
-            # weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
-            weight = self._pirats_weight_sense.get_weight(self._weight_channels_list[0])
-            weight  = count/1000
+        while not self._th_out.wait(0.5):
+            weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
             t = {'ts': datetime.datetime.utcnow().timestamp(),
-                 # 'current_weight': weights_list}
-                 'current_weight': [{'0':weight}]}
+                 'current_weight': weights_list}
             self._pub_current_weight(t)
             count += 1
             if count % 100 == 0:
