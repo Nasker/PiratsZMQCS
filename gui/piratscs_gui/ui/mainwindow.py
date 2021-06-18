@@ -1,0 +1,114 @@
+from PyQt5.QtWidgets import QMainWindow, QAction, QVBoxLayout, QTabWidget, QMdiArea
+from PyQt5.QtCore import QSize
+
+from piratscs_gui.ui.mainwindow_ui import Ui_MainWindow
+from piratscs_gui.system.config import SimpleCSQtGUIConf
+from piratscs_gui.backend.backend import Backend
+
+from piratscs_gui.system.logger import get_logger
+
+from piratscs_gui.ui.modules.logger_window.logger_window import LoggerWindowModule
+from piratscs_gui.ui.modules.daq_connection.daq_conn_module import DaqConnModule
+from piratscs_gui.ui.modules.modex.modex_module import ModExModule
+from piratscs_gui.ui.modules.modpiratstemp.modpiratstemp_module import ModPiratsTempModule
+from piratscs_gui.ui.modules.modpiratsweight.modpiratsweight_module import ModPiratsWeightModule
+from piratscs_gui.ui.modules.modpiratsvoltage.modpiratsvoltage_module import ModPiratsVoltageModule
+
+log = get_logger('mainwindow')
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, config: SimpleCSQtGUIConf,
+                 backend: Backend, *args, **kwargs) -> None:
+        """
+        """
+        self.conf = config
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.backend = backend
+        self.backend.setup_signaler(self)
+        self._setup()
+        self._status = None
+        self._modules = {}
+        self._ui.mdiArea.setViewMode(QMdiArea.TabbedView)
+        self._ui.toolBar.setIconSize(QSize(32, 32))
+        self._add_log_module()
+        self._add_conn_module()
+        # This should be moved to a mod handler, is sooooo ugly here
+        self._add_example_module()
+        self._add_piratstemp_module()
+        self._add_piratsweight_module()
+        self._add_piratsvoltage_module()
+
+    @property
+    def toolbar(self):
+        return self._ui.toolBar
+
+    @property
+    def minisbar(self) -> QVBoxLayout():
+        return self._ui.vlayout_minis
+
+    @property
+    def central(self) -> QTabWidget:
+        return self._ui.mdiArea
+
+    def _add_log_module(self):
+        mod = LoggerWindowModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created loggerwindow')
+        self._modules['log_viewer'] = mod
+
+    def _add_conn_module(self):
+        mod = DaqConnModule(parent=self)
+        mod.add_miniwidget()
+        self._modules['comm'] = mod
+        log.info('Created DAQ connection module widget')
+
+    def _add_example_module(self):
+        mod = ModExModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created modex action')
+        self._modules['modex'] = mod
+
+    def _add_piratstemp_module(self):
+        mod = ModPiratsTempModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats temperature action')
+        self._modules['modpiratstemp'] = mod
+
+    def _add_piratsweight_module(self):
+        mod = ModPiratsWeightModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats weight action')
+        self._modules['modpiratsweight'] = mod
+
+    def _add_piratsvoltage_module(self):
+        mod = ModPiratsVoltageModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats voltage action')
+        self._modules['modpiratsvoltage'] = mod
+
+    def closeEvent(self, event):
+        """
+        """
+        log.debug('Closing backend daq_client')
+        self.backend.comm_client.close()
+        for k, mod in self._modules.items():
+            log.debug(f'Closing module {k}')
+            mod.close()
+
+    def _setup(self):
+        """
+        """
+        self._setup_ui()
+
+    def _setup_ui(self):
+        """
+        """
+        self._ui = Ui_MainWindow()
+        self._ui.setupUi(self)
+        self._ui.splitter.setSizes([200, 700])
+
+    def _connections(self):
+        """
+        """
+        pass
