@@ -43,5 +43,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow(config=conf, backend=backend)
     apply_stylesheet(app, theme='dark_amber.xml')
-    window.show()
+    window.showFullScreen()
     app.exec_()

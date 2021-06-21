@@ -112,7 +112,7 @@ class ModPiratsVoltageBigWidget(QWidget):
         voltage_shown_str =''
         for n,voltage_dict in enumerate(voltage_list):
             for key, value in voltage_dict.items():
-                voltage_shown_str += (f'-CH{key}: {value:.2f} Kg   ')
+                voltage_shown_str += (f'-CH{key}: {value:.3f} V   ')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
                 # log.debug(f'-{n}: {y}')
