@@ -12,6 +12,7 @@ __email__ = 'omartinez@ifae.es'
 
 import os
 import colorsys
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtGui import QIcon, QFont
 from piratscs_gui.system.logger import get_logger
@@ -122,6 +123,14 @@ class ModPiratsWeightBigWidget(QWidget):
     def _setup_ui(self):
         self._ui = Ui_ModulePiratsWeightBig()
         self._ui.setupUi(self)
+        for i in range (2):
+            self.select_btn_ch = QtWidgets.QPushButton(self)
+            self.select_btn_ch.setCheckable(True)
+            self.select_btn_ch.setAutoDefault(False)
+            self.select_btn_ch.setObjectName(f"select_btn_ch{i}")
+            self.select_btn_ch.setText(f"CH{i}")
+            self._ui.gridLayout.addWidget(self.select_btn_ch, 0, i, 1, 1)
+            self.select_btn_ch.clicked.connect(self.print_whatever_button)
 
         robotomono15 = QFont("Roboto", 15)
         self._ui.lbl_last_weight.setFont(robotomono15)
@@ -139,6 +148,8 @@ class ModPiratsWeightBigWidget(QWidget):
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsweight_current_weight.connect(self._recvd_weight)
 
+    def print_whatever_button(self, value):
+        log.debug(f'Button returned {value}')
 
 class ModPiratsWeightModule(Module):
 
