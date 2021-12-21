@@ -40,7 +40,7 @@ class ModPiratsTemp(ModPiratsTempBase):
     def _run(self):
         # What is executed inside the thread
         count = 0
-        while not self._th_out.wait(0.1 ):
+        while not self._th_out.wait(0.1):
             temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
             # log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
             t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -50,9 +50,12 @@ class ModPiratsTemp(ModPiratsTempBase):
             if count % 100 == 0:
                 log.debug(f'Published {count} temperatures')
 
+    def initialize(self):
+        log.debug('Initializing Module Pirats Temp')
+        self._pirats_temp_sense = TemperatureSense()
+
     def start(self):
         log.debug('Starting thread on Module Pirats Temp')
-        self._pirats_temp_sense = TemperatureSense()
         self._th.start()
         log.debug('Started thread on Module Pirats Temp')
 

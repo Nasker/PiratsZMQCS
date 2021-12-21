@@ -53,8 +53,13 @@ class ModuleBase(ABC):
         return self._command_set
 
     @abstractmethod
+
+    def initialize(self):
+        # do any initialization required
+        pass
+
     def start(self):
-        # do any initialization required and start threads here
+        # start threads here
         pass
 
     @abstractmethod

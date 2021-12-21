@@ -74,6 +74,15 @@ class ModHandler:
     def _pub_cmd_ret(self, value):
         self.app.server.pub_cmd_ret(value)
 
+    def initialize(self):
+        # Iterate over all loaded modules and execute its initialize method
+        for k, mod in self._modules.items():
+            try:
+                mod.initialize()
+            except:
+                log.exception('Exception rise when initializing module')
+            else:
+                log.info(f"Initialized module '{mod.__class__.__name__}'")
 
     def start(self):
         # Iterate over all loaded modules and execute its start method

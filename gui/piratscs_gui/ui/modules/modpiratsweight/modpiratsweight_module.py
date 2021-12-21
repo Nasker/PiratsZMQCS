@@ -11,7 +11,6 @@ __maintainer__ = 'Oscar Martinez'
 __email__ = 'omartinez@ifae.es'
 
 import os
-import colorsys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtGui import QIcon, QFont
@@ -19,58 +18,17 @@ from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
 from piratscs_gui.ui.modules.modpiratsweight.modpiratsweight_big_ui import Ui_ModulePiratsWeightBig
+from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
+from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
 import datetime
-from functools import reduce
 
 log = get_logger('modpiratstemp_gui')
 
-colors = ['eb3434','ebe834','5feb34','34e5eb','3459eb','9934eb','eb34d0','eb8934']
-
-class EventCounter:
-    def __init__(self, interval=60):
-        self._events = []
-        self._interval = interval
-        self._avgs = []
-        self._avgs_ts = []
-
-    def new_event(self, value):
-        now = self.now
-        self._events.append((value, now))
-        self._clean()
-        self._avgs.append(self._avg())
-        self._avgs_ts.append(now)
-
-    @property
-    def now(self):
-        return datetime.datetime.utcnow().timestamp()
-
-    @property
-    def threshold(self):
-        return self.now - self._interval
-
-    def _clean(self):
-        th = self.threshold
-        self._events = [x for x in self._events if x[1] > th]
-        self._avgs_ts = [x for x in self._avgs_ts if x > th]
-        self._avgs = self._avgs[-len(self._avgs_ts):]
-
-    @property
-    def avg(self):
-        return self._avgs[-1]
-
-    def _avg(self):
-        lst = [x[0] for x in self._events]
-        return reduce(lambda a, b: a + b, lst) / len(lst)
-
-    @property
-    def len(self):
-        return len(self._events)
-
-    @property
-    def averages_chart_data(self):
-        return self._avgs_ts, self._avgs
-
+N_CHANNELS = 2
+N_ROWS = 1
+N_COLS = int(N_CHANNELS / N_ROWS)
+colors = get_colors_list(N_CHANNELS)
 
 class ModPiratsWeightBigWidget(QWidget):
     def __init__(self, module):
@@ -123,15 +81,15 @@ class ModPiratsWeightBigWidget(QWidget):
     def _setup_ui(self):
         self._ui = Ui_ModulePiratsWeightBig()
         self._ui.setupUi(self)
-        for i in range (2):
-            self.select_btn_ch = QtWidgets.QPushButton(self)
-            self.select_btn_ch.setCheckable(True)
-            self.select_btn_ch.setAutoDefault(False)
-            self.select_btn_ch.setObjectName(f"select_btn_ch{i}")
-            self.select_btn_ch.setText(f"CH{i}")
-            self._ui.gridLayout.addWidget(self.select_btn_ch, 0, i, 1, 1)
-            self.select_btn_ch.clicked.connect(self.print_whatever_button)
-
+        for j in range (N_ROWS):
+            for i in range(N_COLS):
+                self.select_btn_ch = QtWidgets.QCheckBox(self)
+                self.select_btn_ch.setCheckable(True)
+                self.select_btn_ch.setObjectName(f"select_btn_ch{i}")
+                self.select_btn_ch.setText(f"CH{i+j*N_ROWS}")
+                self.select_btn_ch.setStyleSheet(f"color: #{colors[i + j * N_COLS]}")
+                self._ui.gridLayout.addWidget(self.select_btn_ch, j , i)
+                self.select_btn_ch.clicked.connect(self.print_selected_channels_ledit)
         robotomono15 = QFont("Roboto", 15)
         self._ui.lbl_last_weight.setFont(robotomono15)
 
@@ -148,8 +106,13 @@ class ModPiratsWeightBigWidget(QWidget):
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsweight_current_weight.connect(self._recvd_weight)
 
-    def print_whatever_button(self, value):
-        log.debug(f'Button returned {value}')
+    def print_selected_channels_ledit(self, value):
+        active_channels = []
+        for j in range (N_ROWS):
+            for i in range(N_COLS):
+                if self._ui.gridLayout.itemAtPosition(j, i).widget().isChecked():
+                    active_channels.append(i+j*N_COLS)
+        self._ui.ledit_channel_set.setText(",".join(str(x) for x in active_channels))
 
 class ModPiratsWeightModule(Module):
 

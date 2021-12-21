@@ -53,31 +53,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="select_btn_ch1">
-             <property name="text">
-              <string>CH1</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="select_btn_ch2">
-             <property name="text">
-              <string>CH2</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QGridLayout" name="gridLayout"/>
          </item>
         </layout>
        </item>

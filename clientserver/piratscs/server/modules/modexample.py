@@ -110,6 +110,12 @@ class ModExample(ModuleBase):
             if count % 100 == 0:
                 log.debug(f'Published {count} randoms')
 
+    def initialize(self):
+        # This method is called when the module is loaded
+        # It is not mandatory to implement it, but it is a good practice to do so
+        # It is called after the constructor
+        self.start()
+
     def start(self):
         log.debug('Starting thread on Module Example')
         self._th.start()

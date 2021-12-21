@@ -49,12 +49,15 @@ class ModPiratsWeight(ModPiratsWeightBase):
             if count % 100 == 0:
                 log.debug(f'Published {count} weights')
 
-    def start(self):
+    def initialize(self):
         NOMINAL_LOAD = 10000
         NOMINAL_OUTPUT = 0.002
         FULL_SCALE_VOLT = 5.0
+        log.debug('Initializing module Pirats Weight')
+        self._pirats_weight_sense = WeightSense(NOMINAL_LOAD, NOMINAL_OUTPUT, FULL_SCALE_VOLT)
+
+    def start(self):
         log.debug('Starting thread on Module Pirats Weight')
-        self._pirats_weight_sense = WeightSense(NOMINAL_LOAD, NOMINAL_OUTPUT ,FULL_SCALE_VOLT)
         self._th.start()
         log.debug('Started thread on Module Pirats Weight')
 

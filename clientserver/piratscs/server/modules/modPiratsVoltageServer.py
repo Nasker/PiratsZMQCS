@@ -49,9 +49,12 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
             if count % 100 == 0:
                 log.debug(f'Published {count} voltages')
 
+    def initialize(self):
+        log.debug('Initializing Module Pirats Voltage')
+        self._pirats_voltage_sense = VoltageSense()
+
     def start(self):
         log.debug('Starting thread on Module Pirats Voltage')
-        self._pirats_voltage_sense = VoltageSense()
         self._th.start()
         log.debug('Started thread on Module Pirats Voltage')
 

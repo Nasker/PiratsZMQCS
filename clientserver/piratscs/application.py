@@ -51,11 +51,13 @@ class ServerApplication(object):
         # starts the threads of the server (both req-rep and pub-sub)
         log.info("Starting server part of piratscs application")
         self._server.start()
-        log.info('Starting modules')
+        self._mod_handler.initialize()
+
+    def start_threads(self):
+        log.info('Starting modules threads')
         self._mod_handler.start()
 
     def stop(self):
-
         log.info('Stopping piratscs application server')
         log.info('Stopping all modules')
         self._mod_handler.stop()

@@ -16,7 +16,6 @@ if __name__ == '__main__':
     import time
 
     from PyQt5.QtWidgets import QApplication
-    from PyQt5 import QtGui
     from qt_material import apply_stylesheet
     from piratscs_gui.system.logger import log
     from piratscs_gui.ui.mainwindow import MainWindow
