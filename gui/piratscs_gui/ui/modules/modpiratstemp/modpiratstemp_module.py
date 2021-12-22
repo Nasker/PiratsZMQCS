@@ -11,6 +11,7 @@ __maintainer__ = 'Oscar Martinez'
 __email__ = 'omartinez@ifae.es'
 
 import os
+import datetime
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtGui import QIcon, QFont
@@ -19,7 +20,6 @@ from piratscs_gui.ui.modules.module import Module
 
 from piratscs_gui.ui.modules.modpiratstemp.modpiratstemp_big_ui import Ui_ModulePiratsTempBig
 from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
-import datetime
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
 log = get_logger('modpiratstemp_gui')
@@ -52,8 +52,6 @@ class ModPiratsTempBigWidget(QWidget):
         self._events_list = [EventCounter() for _ in range(0, created_channels)]
         self._plots.clear()
         self._plots = [self._ui.chart.plot() for _ in range(0, created_channels)]
-        # self._ui.chart.reset()
-
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -62,19 +60,24 @@ class ModPiratsTempBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
+    def _start_acq(self):
+        self._parent.backend.comm_client.modpiratstemp.start_acq()
+        log.debug("Started temperature acquisition")
+
+    def _stop_acq(self):
+        self._parent.backend.comm_client.modpiratstemp.stop_acq()
+        log.debug("Stopped temperature acquisition")
+
     def _recvd_temp(self, async_msg):
-        # retrieve data
         temp_list = async_msg.value.get('current_temp', 0)
-        # write to label
-        # temp = temp_list[0]['1']
+        log.debug(f"TEMP LIST ON GUI MODULE{temp_list}")
         temp_shown_str =''
         for n,temp_dict in enumerate(temp_list):
             for key, value in temp_dict.items():
                 temp_shown_str += (f'-CH{key}: {value:.2f} ºC   ')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
-                # log.debug(f'-{n}: {y}')
-                self._plots[n].setData(x=x, y=y, pen=colors[n], thickness=3)
+                self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
         self._ui.lbl_last_temp.setText(temp_shown_str)
 
     def _setup_ui(self):
@@ -85,25 +88,20 @@ class ModPiratsTempBigWidget(QWidget):
                 self.select_btn_ch = QtWidgets.QCheckBox(self)
                 self.select_btn_ch.setCheckable(True)
                 self.select_btn_ch.setObjectName(f"select_btn_ch{i}")
-                self.select_btn_ch.setText(f"CH{i+j*N_ROWS}")
+                self.select_btn_ch.setText(f"CH{i + j * N_COLS}")
                 self.select_btn_ch.setStyleSheet(f"color: #{colors[i + j * N_COLS]}")
                 self._ui.gridLayout.addWidget(self.select_btn_ch, j , i)
                 self.select_btn_ch.clicked.connect(self.print_selected_channels_ledit)
-
         robotomono15 = QFont("Roboto", 15)
         self._ui.lbl_last_temp.setFont(robotomono15)
-
-        # Add chart
-        # self._plot = self._ui.chart.plot()
         self._plots.append(self._ui.chart.plot())
-
         log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
         log.debug(f"self._plot type: {type(self._plots[0])}")
         log.debug(f"widget id in setup_ui: {id(self)}")
-        # self._plot.setPen((200, 200, 100))
         self._plots[0].setPen((200, 200, 100))
-
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
+        self._ui.start_acq_btn.clicked.connect(self._start_acq)
+        self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
 
     def print_selected_channels_ledit(self, value):
@@ -116,7 +114,6 @@ class ModPiratsTempBigWidget(QWidget):
 
 
 class ModPiratsTempModule(Module):
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.connected = False
@@ -130,9 +127,6 @@ class ModPiratsTempModule(Module):
         action = QAction(QIcon(ico_path), "Pirats Temperature", self._parent)
         action.setStatusTip("Open Pirats Temperature widget")
         action.triggered.connect(self.show_modpiratstemp)
-        # log.debug(f"dirname: {dirname}")
-        # log.debug(f"icon: {ico_path}")
-        # log.debug(f"icon exists: {os.path.exists(ico_path)}")
         return action
 
     def action_function(self):
@@ -148,4 +142,3 @@ class ModPiratsTempModule(Module):
             print("adding sub window to mdi")
             self._parent.central.addSubWindow(self._widget)
         self._widget.show()
-

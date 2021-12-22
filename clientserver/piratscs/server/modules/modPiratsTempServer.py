@@ -32,7 +32,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         self._th = Thread(target=self._run)
         self._pirats_temp_sense = None
         self._th_out = Event()
-        self._temp_channels_list = [1]
+        self._temp_channels_list = []
 
     def _pub_current_temp(self, value):
         self.app.server.pub_async('modpiratstemp_current_temp', value)
@@ -59,7 +59,22 @@ class ModPiratsTemp(ModPiratsTempBase):
         self._th.start()
         log.debug('Started thread on Module Pirats Temp')
 
+    def start_acq(self):
+        log.debug('Starting thread on Module Pirats Temp')
+        if self._th.is_alive():
+            log.debug("Thread is already alive")
+        else:
+            self._th.start()
+            log.debug('Started thread on Module Pirats Temp')
+
     def stop(self):
+        self._th_out.set()
+        # set timeout longer than max wait_time
+        self._th.join(timeout=1.1)
+        if self._th.is_alive():
+            log.error('Module Pirats Temp thread has not stopped')
+
+    def stop_acq(self):
         self._th_out.set()
         # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
@@ -74,7 +89,9 @@ class ModPiratsTemp(ModPiratsTempBase):
 
     def set_temp_channel(self, temp_channels_str):
         try:
-            if not ',' in temp_channels_str:
+            if not temp_channels_str:
+                self._temp_channels_list = []
+            elif not ',' in temp_channels_str:
                 self._temp_channels_list = [int(temp_channels_str)]
             else:
                 self._temp_channels_list = list(map(int, temp_channels_str.split(',')))

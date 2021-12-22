@@ -58,7 +58,22 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._th.start()
         log.debug('Started thread on Module Pirats Voltage')
 
+    def start_acq(self):
+        log.debug('Starting thread on Module Pirats Voltage')
+        if self._th.is_alive():
+            log.debug("Thread is already alive")
+        else:
+            self._th.start()
+            log.debug('Started thread on Module Pirats Voltage')
+
     def stop(self):
+        self._th_out.set()
+        # set timeout longer than max wait_time
+        self._th.join(timeout=1.1)
+        if self._th.is_alive():
+            log.error('Module Pirats Voltage thread has not stopped')
+
+    def stop_acq(self):
         self._th_out.set()
         # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
@@ -73,7 +88,9 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
 
     def set_voltage_channel(self, voltage_channels_str):
         try:
-            if not ',' in voltage_channels_str:
+            if not voltage_channels_str:
+                self._voltage_channels_list = []
+            elif not ',' in voltage_channels_str:
                 self._voltage_channels_list = [int(voltage_channels_str)]
             else:
                 self._voltage_channels_list = list(map(int, voltage_channels_str.split(',')))

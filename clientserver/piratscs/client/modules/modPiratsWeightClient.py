@@ -28,6 +28,14 @@ class ModPiratsWeight(ClientModuleBase):
     def __init__(self, client):
         super().__init__(client=client)
 
+    def start_acq(self):
+        command = self.mod_name + '.' + 'start_acq'
+        return self._client.command(command=command)
+
+    def stop_acq(self):
+        command = self.mod_name + '.' + 'stop_acq'
+        return self._client.command(command=command)
+
     def set_weight_channel(self, weight_channel):
         command = self.mod_name + '.' + 'set_weight_channel'
         kwargs = {'value': weight_channel}

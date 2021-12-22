@@ -33,6 +33,16 @@ class EchoTempCommand(ModPiratsTempCommand):
             log.debug('Asked to echo a \'None\' value')
         return self.module.echo(whatever=val)
 
+class StartAcqCommand(ModPiratsTempCommand):
+    def execute(self):
+        log.debug("Asked to start temperature acquisition")
+        return self.module.start_acq()
+
+class StopAcqCommand(ModPiratsTempCommand):
+    def execute(self):
+        log.debug("Asked to start temperature acquisition")
+        return self.module.stop_acq()
+
 class SetTempChannel(ModPiratsTempCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
@@ -42,6 +52,8 @@ class SetTempChannel(ModPiratsTempCommand):
 class ModPiratsTempCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoTempCommand,
+        'start_acq': StartAcqCommand,
+        'stop_acq': StopAcqCommand,
         'set_temp_channel': SetTempChannel
     }
 

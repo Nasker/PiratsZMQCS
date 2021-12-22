@@ -46,7 +46,7 @@
            <item>
             <widget class="QPushButton" name="pb_channel_set">
              <property name="text">
-              <string>Execute</string>
+              <string>Send</string>
              </property>
             </widget>
            </item>
@@ -226,6 +226,24 @@
           <enum>Qt::Vertical</enum>
          </property>
         </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QPushButton" name="start_acq_btn">
+           <property name="text">
+            <string>Start ACQ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stop_acq_btn">
+           <property name="text">
+            <string>Stop ACQ</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>

@@ -58,10 +58,25 @@ class ModPiratsWeight(ModPiratsWeightBase):
 
     def start(self):
         log.debug('Starting thread on Module Pirats Weight')
+        if self._th.is_alive():
+            log.debug("Thread is already alive")
+        else:
+            self._th.start()
+            log.debug('Started thread on Module Pirats Weight')
+
+    def start_acq(self):
+        log.debug('Starting thread on Module Pirats Weight')
         self._th.start()
         log.debug('Started thread on Module Pirats Weight')
 
     def stop(self):
+        self._th_out.set()
+        # set timeout longer than max wait_time
+        self._th.join(timeout=1.1)
+        if self._th.is_alive():
+            log.error('Module Pirats Weight thread has not stopped')
+
+    def stop_acq(self):
         self._th_out.set()
         # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
@@ -76,7 +91,9 @@ class ModPiratsWeight(ModPiratsWeightBase):
 
     def set_weight_channel(self, weight_channels_str):
         try:
-            if not ',' in weight_channels_str:
+            if not weight_channels_str:
+                self._weight_channels_list = []
+            elif not ',' in weight_channels_str:
                 self._weight_channels_list = [int(weight_channels_str)]
             else:
                 self._weight_channels_list = list(map(int, weight_channels_str.split(',')))

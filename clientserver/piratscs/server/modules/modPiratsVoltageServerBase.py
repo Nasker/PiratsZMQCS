@@ -32,6 +32,16 @@ class EchoVoltageCommand(ModPiratsVoltageCommand):
             log.debug('Asked to echo a \'None\' value')
         return self.module.echo(whatever=val)
 
+class StartAcqCommand(ModPiratsVoltageCommand):
+    def execute(self):
+        log.debug("Asked to start voltage acquisition")
+        return self.module.start_acq()
+
+class StopAcqCommand(ModPiratsVoltageCommand):
+    def execute(self):
+        log.debug("Asked to start voltage acquisition")
+        return self.module.stop_acq()
+
 class SetVoltageChannel(ModPiratsVoltageCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
@@ -41,6 +51,8 @@ class SetVoltageChannel(ModPiratsVoltageCommand):
 class ModPiratsVoltageCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoVoltageCommand,
+        'start_acq': StartAcqCommand,
+        'stop_acq': StopAcqCommand,
         'set_voltage_channel': SetVoltageChannel
     }
 

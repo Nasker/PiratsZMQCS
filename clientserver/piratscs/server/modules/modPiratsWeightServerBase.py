@@ -32,6 +32,16 @@ class EchoWeightCommand(ModPiratsWeightCommand):
             log.debug('Asked to echo a \'None\' value')
         return self.module.echo(whatever=val)
 
+class StartAcqCommand(ModPiratsWeightCommand):
+    def execute(self):
+        log.debug("Asked to start weight acquisition")
+        return self.module.start_acq()
+
+class StopAcqCommand(ModPiratsWeightCommand):
+    def execute(self):
+        log.debug("Asked to start weight acquisition")
+        return self.module.stop_acq()
+
 class SetWeightChannel(ModPiratsWeightCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
@@ -41,6 +51,8 @@ class SetWeightChannel(ModPiratsWeightCommand):
 class ModPiratsWeightCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoWeightCommand,
+        'start_acq': StartAcqCommand,
+        'stop_acq': StopAcqCommand,
         'set_weight_channel': SetWeightChannel
     }
 
