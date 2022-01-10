@@ -33,8 +33,8 @@ class MainWindow(QMainWindow):
         self._ui.toolBar.setIconSize(QSize(32, 32))
         self._add_log_module()
         self._add_conn_module()
-        # This should be moved to a mod handler, is sooooo ugly here
-        self._add_example_module()
+        # This should be moved to a mod handler, is so ugly here
+        # self._add_example_module()
         self._add_piratstemp_module()
         self._add_piratsweight_module()
         self._add_piratsvoltage_module()

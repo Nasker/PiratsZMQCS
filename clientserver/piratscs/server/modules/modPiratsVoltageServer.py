@@ -17,6 +17,7 @@ __email__ = 'omartinez@ifae.es'
 
 from piratscs.logger import get_logger
 import datetime
+import time
 from threading import Thread, Event
 from piratscs.server.modules.modPiratsVoltageServerBase import ModPiratsVoltageBase
 from piratslib.controlNsensing.VoltageSense import VoltageSense
@@ -31,7 +32,9 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._th = Thread(target=self._run)
         self._pirats_voltage_sense = None
         self._th_out = Event()
-        self._voltage_channels_list = [0]
+        self._th_out.set()
+        self._flag = Event()
+        self._voltage_channels_list = []
 
     def _pub_current_voltage(self, value):
         self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
@@ -39,15 +42,18 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
     def _run(self):
         # What is executed inside the thread
         count = 0
-        while not self._th_out.wait(0.1):
+        while self._th_out.is_set():
+            self._flag.wait()
             voltages_list = self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
             # log.debug(f'TEMPS LIST IN SERVER MODULE {voltages_list}')
-            t = {'ts': datetime.datetime.utcnow().timestamp(),
-                 'current_voltage': voltages_list}
-            self._pub_current_voltage(t)
-            count += 1
-            if count % 100 == 0:
-                log.debug(f'Published {count} voltages')
+            if voltages_list:
+                t = {'ts': datetime.datetime.utcnow().timestamp(),
+                     'current_voltage': voltages_list}
+                self._pub_current_voltage(t)
+                count += 1
+                if count % 100 == 0:
+                    log.debug(f'Published {count} voltages')
+            time.sleep(0.1)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Voltage')
@@ -61,9 +67,11 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
     def start_acq(self):
         log.debug('Starting thread on Module Pirats Voltage')
         if self._th.is_alive():
+            self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
+            self._flag.set()
             log.debug('Started thread on Module Pirats Voltage')
 
     def stop(self):
@@ -75,10 +83,8 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
 
     def stop_acq(self):
         self._th_out.set()
-        # set timeout longer than max wait_time
-        self._th.join(timeout=1.1)
-        if self._th.is_alive():
-            log.error('Module Pirats Voltage thread has not stopped')
+        self._flag.clear()
+        log.info('Module Pirats Voltage thread has stopped')
 
     @staticmethod
     def echo(whatever):

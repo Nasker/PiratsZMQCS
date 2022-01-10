@@ -104,7 +104,7 @@ class ModPiratsTempBigWidget(QWidget):
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
 
-    def print_selected_channels_ledit(self, value):
+    def print_selected_channels_ledit(self):
         active_channels = []
         for j in range (N_ROWS):
             for i in range(N_COLS):

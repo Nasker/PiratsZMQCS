@@ -42,7 +42,7 @@ class ServerApplication(object):
 
         # Load modules
         # If modules require a start (e.g. to start threads, it must be done on the start
-        self._mod_handler.register_module(ModExample(app=self))
+        # self._mod_handler.register_module(ModExample(app=self))
         self._mod_handler.register_module(ModPiratsTemp(app=self))
         self._mod_handler.register_module(ModPiratsWeight(app=self))
         self._mod_handler.register_module(ModPiratsVoltage(app=self))

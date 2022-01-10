@@ -17,11 +17,11 @@ __email__ = 'omartinez@ifae.es'
 
 from piratscs.logger import get_logger
 import datetime
+import time
 from threading import Thread, Event
 from piratscs.server.modules.modPiratsWeightServerBase import ModPiratsWeightBase
 from piratslib.controlNsensing.WeightSense import WeightSense
 
-import numbers
 log = get_logger('Pirats_Weight_Mod')
 
 
@@ -32,7 +32,9 @@ class ModPiratsWeight(ModPiratsWeightBase):
         self._th = Thread(target=self._run)
         self._pirats_weight_sense = None
         self._th_out = Event()
-        self._weight_channels_list = [0]
+        self._th_out.set()
+        self._flag = Event()
+        self._weight_channels_list = []
 
     def _pub_current_weight(self, value):
         self.app.server.pub_async('modpiratsweight_current_weight', value)
@@ -40,14 +42,17 @@ class ModPiratsWeight(ModPiratsWeightBase):
     def _run(self):
         # What is executed inside the thread
         count = 0
-        while not self._th_out.wait(0.5):
+        while self._th_out.is_set():
+            self._flag.wait()
             weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
-            t = {'ts': datetime.datetime.utcnow().timestamp(),
-                 'current_weight': weights_list}
-            self._pub_current_weight(t)
-            count += 1
-            if count % 100 == 0:
-                log.debug(f'Published {count} weights')
+            if weights_list:
+                t = {'ts': datetime.datetime.utcnow().timestamp(),
+                     'current_weight': weights_list}
+                self._pub_current_weight(t)
+                count += 1
+                if count % 100 == 0:
+                    log.debug(f'Published {count} weights')
+                time.sleep(0.5)
 
     def initialize(self):
         NOMINAL_LOAD = 10000
@@ -66,8 +71,13 @@ class ModPiratsWeight(ModPiratsWeightBase):
 
     def start_acq(self):
         log.debug('Starting thread on Module Pirats Weight')
-        self._th.start()
-        log.debug('Started thread on Module Pirats Weight')
+        if self._th.is_alive():
+            self._flag.set()
+            log.debug("Thread is already alive")
+        else:
+            self._th.start()
+            self._flag.set()
+            log.debug('Started thread on Module Pirats Weight')
 
     def stop(self):
         self._th_out.set()
@@ -78,10 +88,8 @@ class ModPiratsWeight(ModPiratsWeightBase):
 
     def stop_acq(self):
         self._th_out.set()
-        # set timeout longer than max wait_time
-        self._th.join(timeout=1.1)
-        if self._th.is_alive():
-            log.error('Module Pirats Weight thread has not stopped')
+        self._flag.clear()
+        log.info('Module Pirats Weight thread has stopped')
 
     @staticmethod
     def echo(whatever):
