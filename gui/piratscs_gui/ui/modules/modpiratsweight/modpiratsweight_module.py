@@ -45,7 +45,7 @@ class ModPiratsWeightBigWidget(QWidget):
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
-        ret_val = self._parent.backend.comm_client.modpiratstemp.set_temp_channel(value)
+        ret_val = self._parent.backend.comm_client.modpiratsweight.set_weight_channel(value)
         created_channels = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._events_list.clear()
@@ -67,6 +67,9 @@ class ModPiratsWeightBigWidget(QWidget):
     def _stop_acq(self):
         self._parent.backend.comm_client.modpiratsweight.stop_acq()
         log.debug("Stopped weight acquisition")
+
+    def _clear_chart(self):
+        self._ui.chart.clear()
 
     def _recvd_weight(self, async_msg):
         weight_list = async_msg.value.get('current_weight', 0)
@@ -102,6 +105,7 @@ class ModPiratsWeightBigWidget(QWidget):
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
+        self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsweight_current_weight.connect(self._recvd_weight)
 
     def print_selected_channels_ledit(self, value):

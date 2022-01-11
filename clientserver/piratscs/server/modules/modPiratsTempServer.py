@@ -44,16 +44,16 @@ class ModPiratsTemp(ModPiratsTempBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
-            # log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
-            if temps_list:
+            if self._temp_channels_list:
+                temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
+                log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_temp': temps_list}
                 self._pub_current_temp(t)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} temperatures')
-                time.sleep(0.1)
+            time.sleep(0.5)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Temp')
@@ -65,14 +65,14 @@ class ModPiratsTemp(ModPiratsTempBase):
         log.debug('Started thread on Module Pirats Temp')
 
     def start_acq(self):
-        log.debug('Starting thread on Module Pirats Temp')
+        log.debug('Starting ACQ on Module Pirats Temp')
         if self._th.is_alive():
             self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
             self._flag.set()
-            log.debug('Started thread on Module Pirats Temp')
+            log.debug('Started ACQ on Module Pirats Temp')
 
     def stop(self):
         self._th_out.set()
@@ -84,7 +84,7 @@ class ModPiratsTemp(ModPiratsTempBase):
     def stop_acq(self):
         self._th_out.set()
         self._flag.clear()
-        log.info('Module Pirats Temp thread has stopped')
+        log.info('Module Pirats Temp ACQ has stopped')
 
     @staticmethod
     def echo(whatever):
@@ -93,6 +93,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         return whatever
 
     def set_temp_channel(self, temp_channels_str):
+        log.info(f'Setting temp channels {temp_channels_str}')
         try:
             if not temp_channels_str:
                 self._temp_channels_list = []

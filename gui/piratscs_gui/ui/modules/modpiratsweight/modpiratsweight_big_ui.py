@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ModulePiratsWeightBig(object):
     def setupUi(self, ModulePiratsWeightBig):
         ModulePiratsWeightBig.setObjectName("ModulePiratsWeightBig")
-        ModulePiratsWeightBig.resize(1064, 730)
+        ModulePiratsWeightBig.resize(1060, 716)
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(ModulePiratsWeightBig)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout()
@@ -141,6 +141,9 @@ class Ui_ModulePiratsWeightBig(object):
         self.horizontalLayout_6.addWidget(self.chart)
         spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.horizontalLayout_6.addItem(spacerItem4)
+        self.btn_clear_chart = QtWidgets.QPushButton(ModulePiratsWeightBig)
+        self.btn_clear_chart.setObjectName("btn_clear_chart")
+        self.horizontalLayout_6.addWidget(self.btn_clear_chart)
         self.verticalLayout_10.addLayout(self.horizontalLayout_6)
         self.verticalLayout_11.addLayout(self.verticalLayout_10)
 
@@ -162,6 +165,7 @@ class Ui_ModulePiratsWeightBig(object):
         self.start_acq_btn.setText(_translate("ModulePiratsWeightBig", "Start ACQ"))
         self.stop_acq_btn.setText(_translate("ModulePiratsWeightBig", "Stop ACQ"))
         self.label_8.setText(_translate("ModulePiratsWeightBig", "Weight Chart"))
+        self.btn_clear_chart.setText(_translate("ModulePiratsWeightBig", "Clear Chart"))
 from pyqtgraph import PlotWidget
 
 

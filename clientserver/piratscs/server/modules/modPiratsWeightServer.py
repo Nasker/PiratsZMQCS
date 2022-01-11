@@ -44,15 +44,16 @@ class ModPiratsWeight(ModPiratsWeightBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
-            if weights_list:
+            if self._weight_channels_list:
+                weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
+                log.debug(f'WEIGHTS LIST IN SERVER MODULE {weights_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_weight': weights_list}
                 self._pub_current_weight(t)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} weights')
-                time.sleep(0.5)
+            time.sleep(0.5)
 
     def initialize(self):
         NOMINAL_LOAD = 10000
@@ -70,14 +71,14 @@ class ModPiratsWeight(ModPiratsWeightBase):
             log.debug('Started thread on Module Pirats Weight')
 
     def start_acq(self):
-        log.debug('Starting thread on Module Pirats Weight')
+        log.debug('Starting ACQ on Module Pirats Weight')
         if self._th.is_alive():
             self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
             self._flag.set()
-            log.debug('Started thread on Module Pirats Weight')
+            log.debug('Started ACQ on Module Pirats Weight')
 
     def stop(self):
         self._th_out.set()
@@ -89,7 +90,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
     def stop_acq(self):
         self._th_out.set()
         self._flag.clear()
-        log.info('Module Pirats Weight thread has stopped')
+        log.info('Module Pirats Weight ACQ has stopped')
 
     @staticmethod
     def echo(whatever):
@@ -98,6 +99,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
         return whatever
 
     def set_weight_channel(self, weight_channels_str):
+        log.info(f'Setting weight channels {weight_channels_str}')
         try:
             if not weight_channels_str:
                 self._weight_channels_list = []
@@ -105,7 +107,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
                 self._weight_channels_list = [int(weight_channels_str)]
             else:
                 self._weight_channels_list = list(map(int, weight_channels_str.split(',')))
-            log.debug(self._weight_channels_list)
+            log.debug(f'WEIGHT CHANNELS LIST: {self._weight_channels_list}')
             return True
         except:
             raise Exception(f'Invalid value for set channel ({weight_channels_str}), it must be a number or a list')

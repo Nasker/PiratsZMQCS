@@ -68,6 +68,9 @@ class ModPiratsTempBigWidget(QWidget):
         self._parent.backend.comm_client.modpiratstemp.stop_acq()
         log.debug("Stopped temperature acquisition")
 
+    def _clear_chart(self):
+        self._ui.chart.clear()
+
     def _recvd_temp(self, async_msg):
         temp_list = async_msg.value.get('current_temp', 0)
         log.debug(f"TEMP LIST ON GUI MODULE{temp_list}")
@@ -102,6 +105,7 @@ class ModPiratsTempBigWidget(QWidget):
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
+        self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
 
     def print_selected_channels_ledit(self):

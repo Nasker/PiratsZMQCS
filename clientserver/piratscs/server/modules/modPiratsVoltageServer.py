@@ -44,16 +44,16 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            voltages_list = self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
-            # log.debug(f'TEMPS LIST IN SERVER MODULE {voltages_list}')
-            if voltages_list:
+            if self._voltage_channels_list:
+                voltages_list = self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
+                log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_voltage': voltages_list}
                 self._pub_current_voltage(t)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')
-            time.sleep(0.1)
+            time.sleep(0.5)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Voltage')
@@ -65,14 +65,14 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         log.debug('Started thread on Module Pirats Voltage')
 
     def start_acq(self):
-        log.debug('Starting thread on Module Pirats Voltage')
+        log.debug('Starting ACQ on Module Pirats Voltage')
         if self._th.is_alive():
             self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
             self._flag.set()
-            log.debug('Started thread on Module Pirats Voltage')
+            log.debug('Started ACQ on Module Pirats Voltage')
 
     def stop(self):
         self._th_out.set()
@@ -84,7 +84,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
     def stop_acq(self):
         self._th_out.set()
         self._flag.clear()
-        log.info('Module Pirats Voltage thread has stopped')
+        log.info('Module Pirats Voltage ACQ has stopped')
 
     @staticmethod
     def echo(whatever):

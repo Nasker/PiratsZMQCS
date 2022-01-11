@@ -141,6 +141,9 @@ class Ui_ModulePiratsVoltageBig(object):
         self.horizontalLayout_6.addWidget(self.chart)
         spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.horizontalLayout_6.addItem(spacerItem4)
+        self.btn_clear_chart = QtWidgets.QPushButton(ModulePiratsVoltageBig)
+        self.btn_clear_chart.setObjectName("btn_clear_chart")
+        self.horizontalLayout_6.addWidget(self.btn_clear_chart)
         self.verticalLayout_10.addLayout(self.horizontalLayout_6)
         self.verticalLayout_11.addLayout(self.verticalLayout_10)
 
@@ -162,6 +165,7 @@ class Ui_ModulePiratsVoltageBig(object):
         self.start_acq_btn.setText(_translate("ModulePiratsVoltageBig", "Start ACQ"))
         self.stop_acq_btn.setText(_translate("ModulePiratsVoltageBig", "Stop ACQ"))
         self.label_8.setText(_translate("ModulePiratsVoltageBig", "Voltage Chart"))
+        self.btn_clear_chart.setText(_translate("ModulePiratsVoltageBig", "Clear Chart"))
 from pyqtgraph import PlotWidget
 
 
