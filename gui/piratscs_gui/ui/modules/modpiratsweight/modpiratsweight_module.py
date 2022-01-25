@@ -108,7 +108,7 @@ class ModPiratsWeightBigWidget(QWidget):
         self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsweight_current_weight.connect(self._recvd_weight)
 
-    def print_selected_channels_ledit(self, value):
+    def print_selected_channels_ledit(self):
         active_channels = []
         for j in range (N_ROWS):
             for i in range(N_COLS):

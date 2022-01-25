@@ -2,8 +2,8 @@
 
 """
 __author__ = 'Oscar Martinez'
-__copyright__ = 'Copyleft 2021'
-__date__ = '14/6/21'
+__copyright__ = 'Copyleft 2022'
+__date__ = '25/1/22'
 __credits__ = ['Otger Ballester', 'Oscar Martinez']
 __license__ = 'CC0 1.0 Universal'
 __version__ = '0.1'
@@ -18,11 +18,11 @@ from PyQt5.QtGui import QIcon, QFont
 from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
-from piratscs_gui.ui.modules.modpiratsvoltage.modpiratsvoltage_big_ui import Ui_ModulePiratsVoltageBig
+from piratscs_gui.ui.modules.modpressuresense.modpressuresense_big_ui import Ui_ModulePressureSenseBig
 from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
-log = get_logger('modpiratsvoltage_gui')
+log = get_logger('modpiratssense_gui')
 
 N_CHANNELS = 2
 N_ROWS = 1
@@ -30,7 +30,7 @@ N_COLS = int(N_CHANNELS / N_ROWS)
 
 colors = get_colors_list(N_CHANNELS)
 
-class ModPiratsVoltageBigWidget(QWidget):
+class ModPressureSenseBigWidget(QWidget):
     def __init__(self, module):
         self._module = module
         self._parent = module.parent
@@ -38,6 +38,7 @@ class ModPiratsVoltageBigWidget(QWidget):
         # self._events = EventCounter()
         # self._plot = None
         self._plots = []
+        self._plot = None
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
         self._events_list = []
@@ -66,7 +67,7 @@ class ModPiratsVoltageBigWidget(QWidget):
 
     def _stop_acq(self):
         self._parent.backend.comm_client.modpiratsvoltage.stop_acq()
-        log.debug("Stopped voltage acquisition")
+        log.debug("Stopped pressure acquisition")
 
     def _clear_chart(self):
         self._ui.chart.clear()
@@ -84,7 +85,7 @@ class ModPiratsVoltageBigWidget(QWidget):
         self._ui.lbl_last_voltage.setText(voltage_shown_str)
 
     def _setup_ui(self):
-        self._ui = Ui_ModulePiratsVoltageBig()
+        self._ui = Ui_ModulePressureSenseBig()
         self._ui.setupUi(self)
         for j in range (N_ROWS):
             for i in range(N_COLS):
@@ -117,7 +118,8 @@ class ModPiratsVoltageBigWidget(QWidget):
         self._ui.ledit_channel_set.setText(",".join(str(x) for x in active_channels))
 
 
-class ModPiratsVoltageModule(Module):
+class ModPressureSenseModule(Module):
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.connected = False
@@ -127,10 +129,13 @@ class ModPiratsVoltageModule(Module):
 
     def _set_action(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
-        ico_path = os.path.join(dirname, 'media', 'voltage_ico.png')
-        action = QAction(QIcon(ico_path), "Pirats Voltage", self._parent)
-        action.setStatusTip("Open Pirats Voltage widget")
-        action.triggered.connect(self.show_modpiratsvoltage)
+        ico_path = os.path.join(dirname, 'media', 'pressure_ico.png')
+        action = QAction(QIcon(ico_path), "Pressure Sense", self._parent)
+        action.setStatusTip("Open Pressure Sense widget")
+        action.triggered.connect(self.show_modpressuresense)
+        # log.debug(f"dirname: {dirname}")
+        # log.debug(f"icon: {ico_path}")
+        # log.debug(f"icon exists: {os.path.exists(ico_path)}")
         return action
 
     def action_function(self):
@@ -140,9 +145,10 @@ class ModPiratsVoltageModule(Module):
     def parent(self):
         return self._parent
 
-    def show_modpiratsvoltage(self):
+    def show_modpressuresense(self):
         if self._widget is None:
-            self._widget = ModPiratsVoltageBigWidget(module=self)
+            self._widget = ModPressureSenseBigWidget(module=self)
             print("adding sub window to mdi")
             self._parent.central.addSubWindow(self._widget)
         self._widget.show()
+
