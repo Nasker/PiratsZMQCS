@@ -27,8 +27,8 @@ log = get_logger('modpiratssense_gui')
 N_CHANNELS = 2
 N_ROWS = 1
 N_COLS = int(N_CHANNELS / N_ROWS)
-
 colors = get_colors_list(N_CHANNELS)
+
 
 class ModPressureSenseBigWidget(QWidget):
     def __init__(self, module):
@@ -46,7 +46,7 @@ class ModPressureSenseBigWidget(QWidget):
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
-        ret_val = self._parent.backend.comm_client.modpiratsvoltage.set_voltage_channel(value)
+        ret_val = self._parent.backend.comm_client.modpressuresense.set_pressure_channel(value)
         created_channels = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._events_list.clear()
@@ -62,11 +62,11 @@ class ModPressureSenseBigWidget(QWidget):
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
     def _start_acq(self):
-        self._parent.backend.comm_client.modpiratsvoltage.start_acq()
-        log.debug("Started voltage acquisition")
+        self._parent.backend.comm_client.modpressuresense.start_acq()
+        log.debug("Started pressure acquisition")
 
     def _stop_acq(self):
-        self._parent.backend.comm_client.modpiratsvoltage.stop_acq()
+        self._parent.backend.comm_client.modpressuresense.stop_acq()
         log.debug("Stopped pressure acquisition")
 
     def _clear_chart(self):
@@ -76,7 +76,7 @@ class ModPressureSenseBigWidget(QWidget):
         pressure_list = async_msg.value.get('current_pressure', 0)
         log.debug(f"PRESSURE LIST ON GUI MODULE{pressure_list}")
         pressure_shown_str =''
-        for n,pressure_dict in enumerate(pressure_list):
+        for n, pressure_dict in enumerate(pressure_list):
             for key, value in pressure_dict.items():
                 pressure_shown_str += (f'-CH{key}: {value:.3f} mbar\n')
                 self._events_list[n].new_event(value)
@@ -151,4 +151,3 @@ class ModPressureSenseModule(Module):
             print("adding sub window to mdi")
             self._parent.central.addSubWindow(self._widget)
         self._widget.show()
-

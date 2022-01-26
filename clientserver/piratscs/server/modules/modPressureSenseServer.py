@@ -46,10 +46,10 @@ class ModPressureSense(ModPressureSenseBase):
             self._flag.wait()
             if self._pressure_channels_list:
                 #pressures_list = [self._pressure_sense.get_measurement_value()]
-                pressures_list = [23.4]
+                pressures_list = [{0: 23.4}]
                 log.debug(f'PRESSURES LIST IN SERVER MODULE {pressures_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
-                     'current_voltage': pressures_list}
+                     'current_pressure': pressures_list}
                 self._pub_current_pressure(t)
                 count += 1
                 if count % 100 == 0:

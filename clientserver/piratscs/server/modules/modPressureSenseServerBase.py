@@ -23,7 +23,7 @@ log = get_logger('Pressure_Sense_Mod_For_Cli')
 class ModPressureSenseCommand(Command):
     @property
     def module(self):
-        return self.app.mod_handler.get_mod('modpresuresense')
+        return self.app.mod_handler.get_mod('modpressuresense')
 
 
 class EchoPressureCommand(ModPressureSenseCommand):
@@ -50,7 +50,7 @@ class SetPressureChannel(ModPressureSenseCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
         log.debug(f"Asked to set measurement pressure channel to: '{val}'")
-        return self.module.set_voltage_channel(val)
+        return self.module.set_pressure_channel(val)
 
 
 class ModPressureSenseCommandSet(CommandSet):
@@ -58,11 +58,11 @@ class ModPressureSenseCommandSet(CommandSet):
         'echo': EchoPressureCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_voltage_channel': SetPressureChannel
+        'set_pressure_channel': SetPressureChannel
     }
 
 
 class ModPressureSenseBase(ModuleBase):
     _command_set = ModPressureSenseCommandSet  # The class not the instance
-    _mod_name = 'modpresuresense'
-    _async_topics = ['modpresuresense_current_pressure']
+    _mod_name = 'modpressuresense'
+    _async_topics = ['modpressuresense_current_pressure']
