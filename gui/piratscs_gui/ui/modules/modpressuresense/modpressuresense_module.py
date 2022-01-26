@@ -97,7 +97,7 @@ class ModPressureSenseBigWidget(QWidget):
                 self._ui.gridLayout.addWidget(self.select_btn_ch, j , i)
                 self.select_btn_ch.clicked.connect(self.print_selected_channels_ledit)
         robotomono15 = QFont("Roboto", 15)
-        self._ui.lbl_last_voltage.setFont(robotomono15)
+        self._ui.lbl_last_pressure.setFont(robotomono15)
         self._plots.append(self._ui.chart.plot())
         log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
         log.debug(f"self._plot type: {type(self._plots[0])}")
