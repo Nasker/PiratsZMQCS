@@ -22,7 +22,7 @@ from threading import Thread, Event
 from piratscs.server.modules.modPressureSenseServerBase import ModPressureSenseBase
 from pyvsr53dl.vsr53dl import PyVSR53DL
 
-log = get_logger('Pirats_Voltage_Mod')
+log = get_logger('Pressure_Sense_Mod')
 
 
 class ModPressureSense(ModPressureSenseBase):
@@ -45,7 +45,8 @@ class ModPressureSense(ModPressureSenseBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._pressure_channels_list:
-                pressures_list = [self._pressure_sense.get_measurement_value()]
+                #pressures_list = [self._pressure_sense.get_measurement_value()]
+                pressures_list = [23.4]
                 log.debug(f'PRESSURES LIST IN SERVER MODULE {pressures_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_voltage': pressures_list}
@@ -59,9 +60,9 @@ class ModPressureSense(ModPressureSenseBase):
         log.debug('Initializing Module Pressure Sense')
         from pyvsr53dl.sys import dev_tty
         sensor_address = 1
-        self._pressure_sense = PyVSR53DL(dev_tty, sensor_address)
-        self._pressure_sense.open_communication()
-        self._pressure_sense.get_device_type()
+        # self._pressure_sense = PyVSR53DL(dev_tty, sensor_address)
+        # self._pressure_sense.open_communication()
+        # self._pressure_sense.get_device_type()
 
     def start(self):
         log.debug('Starting thread on Module Pressure Sense')

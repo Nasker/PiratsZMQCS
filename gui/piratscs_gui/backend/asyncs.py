@@ -92,6 +92,7 @@ class AsyncReceiver(object):
         self._be.comm_client.async_subscribe('modpiratstemp_current_temp', async_callback)
         self._be.comm_client.async_subscribe('modpiratsweight_current_weight', async_callback)
         self._be.comm_client.async_subscribe('modpiratsvoltage_current_voltage', async_callback)
+        self._be.comm_client.async_subscribe('modpiratspressure_current_pressure', async_callback)
 
     def _register_asyncs(self):
         # This ones simply keep count of how many asyncs have been received of each type and holds the last one

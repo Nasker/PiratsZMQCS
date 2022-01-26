@@ -72,17 +72,17 @@ class ModPressureSenseBigWidget(QWidget):
     def _clear_chart(self):
         self._ui.chart.clear()
 
-    def _recvd_voltage(self, async_msg):
-        voltage_list = async_msg.value.get('current_voltage', 0)
-        log.debug(f"VOLTAGE LIST ON GUI MODULE{voltage_list}")
-        voltage_shown_str =''
-        for n,voltage_dict in enumerate(voltage_list):
-            for key, value in voltage_dict.items():
-                voltage_shown_str += (f'-CH{key}: {value:.3f} V   ')
+    def _recvd_pressure(self, async_msg):
+        pressure_list = async_msg.value.get('current_pressure', 0)
+        log.debug(f"PRESSURE LIST ON GUI MODULE{pressure_list}")
+        pressure_shown_str =''
+        for n,pressure_dict in enumerate(pressure_list):
+            for key, value in pressure_dict.items():
+                pressure_shown_str += (f'-CH{key}: {value:.3f} mbar\n')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
                 self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
-        self._ui.lbl_last_voltage.setText(voltage_shown_str)
+        self._ui.lbl_last_pressure.setText(pressure_shown_str)
 
     def _setup_ui(self):
         self._ui = Ui_ModulePressureSenseBig()
@@ -107,7 +107,7 @@ class ModPressureSenseBigWidget(QWidget):
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
-        self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
+        self._parent.backend.signaler.sign_be_comm_async_modpressuresense_current_pressure.connect(self._recvd_pressure)
 
     def print_selected_channels_ledit(self):
         active_channels = []
