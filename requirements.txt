@@ -1,9 +1,9 @@
-PyQT5==5.15.4
-PyYAML==5.4.1
-numpy==1.20.3
-pyqtgraph==0.12.1
-pyzmq==22.1.0
-zmqcs==0.1.0
-qt-material==2.8.8
+PyQT5==5.15.6
+PyYAML==6.0
+numpy==1.22.1
+pyqtgraph==0.12.3
+pyzmq==22.3.0
+zmqcs==0.1.1
+qt-material==2.8.19
 piratslib==0.1.4
 pyvsr53dl~=0.1.1

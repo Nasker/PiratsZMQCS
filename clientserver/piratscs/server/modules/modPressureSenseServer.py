@@ -45,8 +45,7 @@ class ModPressureSense(ModPressureSenseBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._pressure_channels_list:
-                #pressures_list = [self._pressure_sense.get_measurement_value()]
-                pressures_list = [{0: 23.4}]
+                pressures_list = [{0: self._pressure_sense.get_measurement_value()}]
                 log.debug(f'PRESSURES LIST IN SERVER MODULE {pressures_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_pressure': pressures_list}
@@ -60,9 +59,10 @@ class ModPressureSense(ModPressureSenseBase):
         log.debug('Initializing Module Pressure Sense')
         from pyvsr53dl.sys import dev_tty
         sensor_address = 1
-        # self._pressure_sense = PyVSR53DL(dev_tty, sensor_address)
-        # self._pressure_sense.open_communication()
-        # self._pressure_sense.get_device_type()
+        self._pressure_sense = PyVSR53DL(dev_tty, sensor_address)
+        self._pressure_sense.open_communication()
+        self._pressure_sense.get_device_type()
+
 
     def start(self):
         log.debug('Starting thread on Module Pressure Sense')
