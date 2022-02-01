@@ -14,6 +14,7 @@ from piratscs_gui.ui.modules.modpiratstemp.modpiratstemp_module import ModPirats
 from piratscs_gui.ui.modules.modpiratsweight.modpiratsweight_module import ModPiratsWeightModule
 from piratscs_gui.ui.modules.modpiratsvoltage.modpiratsvoltage_module import ModPiratsVoltageModule
 from piratscs_gui.ui.modules.modpressuresense.modpressuresense_module import ModPressureSenseModule
+from piratscs_gui.ui.modules.modpiratsinout.modpiratsinout_module import ModPiratsInOutModule
 
 log = get_logger('mainwindow')
 
@@ -40,6 +41,7 @@ class MainWindow(QMainWindow):
         self._add_piratsweight_module()
         self._add_piratsvoltage_module()
         self._add_pressuresense_module()
+        self._add_piratsinout_module()
 
     @property
     def toolbar(self):
@@ -94,6 +96,12 @@ class MainWindow(QMainWindow):
         mod.set_action_to_toolbar()
         log.info('Created pressure sense action')
         self._modules['modpressuresense'] = mod
+
+    def _add_piratsinout_module(self):
+        mod = ModPiratsInOutModule(parent=self)
+        mod.set_action_to_toolbar()
+        log.info('Created pirats inout action')
+        self._modules['modpiratsinout'] = mod
 
     def closeEvent(self, event):
         """
