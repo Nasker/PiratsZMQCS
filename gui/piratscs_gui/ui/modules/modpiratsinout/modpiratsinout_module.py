@@ -2,8 +2,8 @@
 
 """
 __author__ = 'Oscar Martinez'
-__copyright__ = 'Copyleft 2021'
-__date__ = '14/6/21'
+__copyright__ = 'Copyleft 2022'
+__date__ = '2/2/22'
 __credits__ = ['Otger Ballester', 'Oscar Martinez']
 __license__ = 'CC0 1.0 Universal'
 __version__ = '0.1'
