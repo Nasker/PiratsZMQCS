@@ -46,7 +46,6 @@ class ModPiratsInOut(ModPiratsInOutBase):
         while self._th_out.is_set():
             self._flag.wait()
             inputs_states_list = self._pirats_in_sense.digital_read_all()
-            log.debug(f'INPUTS STATES IN SERVER {inputs_states_list}')
             t = {'ts': datetime.datetime.utcnow().timestamp(),
                  'current_inputs_state': inputs_states_list}
             self._pub_current_state(t)

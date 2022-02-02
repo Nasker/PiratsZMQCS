@@ -73,7 +73,6 @@ class ModPiratsTempBigWidget(QWidget):
 
     def _recvd_temp(self, async_msg):
         temp_list = async_msg.value.get('current_temp', 0)
-        log.debug(f"TEMP LIST ON GUI MODULE{temp_list}")
         temp_shown_str =''
         for n,temp_dict in enumerate(temp_list):
             for key, value in temp_dict.items():

@@ -51,11 +51,11 @@ class ModPiratsInOutBigWidget(QWidget):
     def _update_inputs_state(self, states_list):
         for j in range(N_ROWS):
             for i in range(N_COLS):
-                self._ui.inputs_gridLayout.itemAtPosition(j, i).widget().setEnabled(states_list[j*N_COLS + i])
+                #self._ui.inputs_gridLayout.itemAtPosition(j, i).widget().setEnabled(states_list[j*N_COLS + i])
+                self._ui.inputs_gridLayout.itemAtPosition(j, i).widget().setChecked(states_list[j*N_COLS + i])
 
     def _recvd_input(self, async_msg):
         inputs_states_list = async_msg.value.get('current_inputs_state', 0)
-        log.debug(f"INPUTS LIST ON GUI MODULE: {inputs_states_list}")
         inputs_states_list = int_to_bool_list(inputs_states_list, N_CHANNELS)
         inputs_shown_str = str(inputs_states_list)
         self._ui.lbl_set_channel_recvd_on.setText(inputs_shown_str)
@@ -80,7 +80,6 @@ class ModPiratsInOutBigWidget(QWidget):
                 self.select_in_btn.setMinimumSize(120, 120)
                 self._ui.outputs_gridLayout.addWidget(self.select_out_btn, j, i)
                 self._ui.inputs_gridLayout.addWidget(self.select_in_btn, j , i)
-                self.select_in_btn.clicked.connect(self.act_on_input_btn_clicked)
                 self.select_out_btn.clicked.connect(self.act_on_output_btn_clicked)
         log.debug(f"widget id in setup_ui: {id(self)}")
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
@@ -88,7 +87,6 @@ class ModPiratsInOutBigWidget(QWidget):
         self._parent.backend.signaler.sign_be_comm_async_modpiratsinout_current_input_state.connect(self._recvd_input)
 
     def act_on_output_btn_clicked(self):
-        print(f"pressed output #{int(self.sender().text())} state: {self.sender().isChecked()}")
         output = int(self.sender().text())
         state = self.sender().isChecked()
         ret_val = self._parent.backend.comm_client.modpiratsinout.set_output_state(output, state)
@@ -101,8 +99,6 @@ class ModPiratsInOutBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
-    def act_on_input_btn_clicked(self):
-        print(f"pressed input #{int(self.sender().text())} state: {self.sender().isChecked()}")
 
 class ModPiratsInOutModule(Module):
     def __init__(self, parent=None):
