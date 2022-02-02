@@ -14,7 +14,7 @@ import os
 import datetime
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QAction
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon
 from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
