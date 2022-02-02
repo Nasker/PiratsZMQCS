@@ -19,7 +19,6 @@ from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
 from piratscs_gui.ui.modules.modpiratsinout.modpiratsinout_big_ui import Ui_ModulePiratsInOutBig
-from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
 N_CHANNELS = 16
@@ -35,25 +34,25 @@ class ModPiratsInOutBigWidget(QWidget):
         self._module = module
         self._parent = module.parent
         super().__init__(self._parent)
-        # self._events = EventCounter()
-        # self._plot = None
-        self._plots = []
         self._setup_ui()
-        self._events_list = []
-        self._events_list.append(EventCounter())
+        self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
 
+    def _start_acq(self):
+        self._parent.backend.comm_client.modpiratsinout.start_acq()
+        log.debug("Started inputs state acquisition")
 
-    def _recvd_voltage(self, async_msg):
-        voltage_list = async_msg.value.get('current_voltage', 0)
-        log.debug(f"VOLTAGE LIST ON GUI MODULE{voltage_list}")
-        voltage_shown_str =''
-        for n,voltage_dict in enumerate(voltage_list):
-            for key, value in voltage_dict.items():
-                voltage_shown_str += (f'-CH{key}: {value:.3f} V   ')
-                self._events_list[n].new_event(value)
-                x, y = self._events_list[n].averages_chart_data
-                self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
-        # self._ui.lbl_last_voltage.setText(voltage_shown_str)
+    def _stop_acq(self):
+        self._parent.backend.comm_client.modpiratsinout.stop_acq()
+        log.debug("Stopped inputs state acquisition")
+
+    def _recvd_input(self, async_msg):
+        inputs_states_list = async_msg.value.get('current_inputs_state', 0)
+        log.debug(f"INPUTS LIST ON GUI MODULE{inputs_states_list}")
+        inputs_shown_str =''
+        for n,inputs_dict in enumerate(inputs_states_list):
+            for key, value in inputs_dict.items():
+                inputs_shown_str += (f'-INPUT{key}:{value}  ')
+        self._ui.lbl_set_channel_recvd_on.setText(inputs_shown_str)
 
     def _setup_ui(self):
         self._ui = Ui_ModulePiratsInOutBig()
@@ -63,34 +62,40 @@ class ModPiratsInOutBigWidget(QWidget):
                 self.select_out_btn = QtWidgets.QPushButton(self)
                 self.select_in_btn = QtWidgets.QPushButton(self)
                 self.select_out_btn.setCheckable(True)
-                self.select_out_btn.setObjectName(f"select_out_{i}_btn")
-                self.select_in_btn.setObjectName(f"select_in_{i}_btn")
-                self.select_out_btn.setText(f"OUT{i + j * N_COLS}")
-                self.select_in_btn.setText(f"IN{i + j * N_COLS}")
+                self.select_in_btn.setCheckable(True)
+                self.select_out_btn.setObjectName(f"select_out_{i + j * N_COLS}_btn")
+                self.select_in_btn.setObjectName(f"select_in_{i + j * N_COLS}_btn")
+                self.select_out_btn.setText(f"{i + j * N_COLS}")
+                self.select_in_btn.setText(f"{i + j * N_COLS}")
+                # self.select_out_btn.setStyleSheet(f"border-color: #{colors[i + j * N_COLS]}")
+                # self.select_in_btn.setStyleSheet(f"border-color: #{colors[i + j * N_COLS]}")
                 self.select_out_btn.setMinimumSize(120, 120)
                 self.select_in_btn.setMinimumSize(120, 120)
                 self._ui.outputs_gridLayout.addWidget(self.select_out_btn, j, i)
                 self._ui.inputs_gridLayout.addWidget(self.select_in_btn, j , i)
-                self.select_in_btn.clicked.connect(self.print_selected_in_channels_ledit)
-                self.select_out_btn.clicked.connect(self.print_selected_out_channels_ledit)
+                self.select_in_btn.clicked.connect(self.act_on_input_btn_clicked)
+                self.select_out_btn.clicked.connect(self.act_on_output_btn_clicked)
         log.debug(f"widget id in setup_ui: {id(self)}")
-        self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
+        self._ui.start_acq_btn.clicked.connect(self._start_acq)
+        self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
+        self._parent.backend.signaler.sign_be_comm_async_modpiratsinout_current_input_state.connect(self._recvd_input)
 
-    def print_selected_out_channels_ledit(self):
-        active_outputs = []
-        for j in range (N_ROWS):
-            for i in range(N_COLS):
-                if self._ui.outputs_gridLayout.itemAtPosition(j, i).widget().isChecked():
-                    active_outputs.append(i+j*N_COLS)
-        print(f"active outputs: {active_outputs}")
+    def act_on_output_btn_clicked(self):
+        print(f"pressed output #{int(self.sender().text())} state: {self.sender().isChecked()}")
+        output = int(self.sender().text())
+        state = self.sender().isChecked()
+        ret_val = self._parent.backend.comm_client.modpiratsinout.set_output_state(output, state)
+        log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
+        if ret_val.error:
+            self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
+            self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
+        else:
+            self._ui.lbl_set_channel_recvd.setText(str(ret_val.ans))
+            self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
+        self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
-    def print_selected_in_channels_ledit(self):
-        active_inputs = []
-        for j in range(N_ROWS):
-            for i in range(N_COLS):
-                if self._ui.inputs_gridLayout.itemAtPosition(j, i).widget().isChecked():
-                    active_inputs.append(i + j * N_COLS)
-        print(f"active inputs: {active_inputs}")
+    def act_on_input_btn_clicked(self):
+        print(f"pressed input #{int(self.sender().text())} state: {self.sender().isChecked()}")
 
 class ModPiratsInOutModule(Module):
     def __init__(self, parent=None):

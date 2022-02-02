@@ -7,6 +7,7 @@ from piratscs.client.modules.modPiratsTempClient import ModPiratsTemp
 from piratscs.client.modules.modPiratsWeightClient import ModPiratsWeight
 from piratscs.client.modules.modPiratsVoltageClient import ModPiratsVoltage
 from piratscs.client.modules.modPressureSenseClient import ModPressureSense
+from piratscs.client.modules.modPiratsInOutClient import ModPiratsInOut
 
 
 class Client(zmqClient):
@@ -19,6 +20,7 @@ class Client(zmqClient):
         self.modpiratsweight = ModPiratsWeight(client=self)
         self.modpiratsvoltage = ModPiratsVoltage(client=self)
         self.modpressuresense = ModPressureSense(client=self)
+        self.modpiratsinout = ModPiratsInOut(client=self)
 
     def command(self, command, kwargs={}):
         """

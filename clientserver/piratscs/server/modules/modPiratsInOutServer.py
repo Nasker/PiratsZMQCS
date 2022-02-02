@@ -7,8 +7,8 @@ The module has  commands implemented as well as a thread that publishes data
 
 """
 __author__ = 'Oscar Martinez'
-__copyright__ = 'Copyleft 2021'
-__date__ = '14/6/21'
+__copyright__ = 'Copyleft 2022'
+__date__ = '02/2/22'
 __credits__ = ['Otger Ballester', 'Oscar Martinez']
 __license__ = 'CC0 1.0 Universal'
 __version__ = '0.1'
@@ -19,88 +19,83 @@ from piratscs.logger import get_logger
 import datetime
 import time
 from threading import Thread, Event
-from piratscs.server.modules.modPiratsVoltageServerBase import ModPiratsVoltageBase
-from piratslib.controlNsensing.VoltageSense import VoltageSense
+from piratscs.server.modules.modPiratsInOutServerBase import ModPiratsInOutBase
+from piratslib.controlNsensing.DigitalOutputControl import DigitalOutputControl
+from piratslib.controlNsensing.DigitalInputSense import DigitalInputSense
 
 log = get_logger('Pirats_Voltage_Mod')
 
 
-class ModPiratsVoltage(ModPiratsVoltageBase):
+class ModPiratsInOut(ModPiratsInOutBase):
 
     def __init__(self, app):
         super().__init__(app=app)
         self._th = Thread(target=self._run)
-        self._pirats_voltage_sense = None
+        self._pirats_in_sense = None
+        self._pirats_out_control = None
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
-        self._voltage_channels_list = []
 
-    def _pub_current_voltage(self, value):
-        self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
+    def _pub_current_state(self, value):
+        self.app.server.pub_async('modpiratsinout_current_input_state', value)
 
     def _run(self):
         # What is executed inside the thread
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._voltage_channels_list:
-                voltages_list = self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
-                log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
-                t = {'ts': datetime.datetime.utcnow().timestamp(),
-                     'current_voltage': voltages_list}
-                self._pub_current_voltage(t)
-                count += 1
-                if count % 100 == 0:
-                    log.debug(f'Published {count} voltages')
-            time.sleep(0.5)
+            inputs_states_list = self._pirats_in_sense.digital_read_all()
+            log.debug(f'INPUTS STATES IN SERVER {inputs_states_list}')
+            t = {'ts': datetime.datetime.utcnow().timestamp(),
+                 'current_inputs_state': inputs_states_list}
+            self._pub_current_state(t)
+            count += 1
+            if count % 100 == 0:
+                log.debug(f'Published {count} input readings')
+            time.sleep(1.0)
 
     def initialize(self):
-        log.debug('Initializing Module Pirats Voltage')
-        self._pirats_voltage_sense = VoltageSense()
+        log.debug('Initializing Module Pirats InOut')
+        self._pirats_in_sense = DigitalInputSense()
+        self._pirats_out_control = DigitalOutputControl()
 
     def start(self):
-        log.debug('Starting thread on Module Pirats Voltage')
+        log.debug('Starting thread on Module Pirats InOut')
         self._th.start()
-        log.debug('Started thread on Module Pirats Voltage')
+        log.debug('Started thread on Module Pirats InOut')
 
     def start_acq(self):
-        log.debug('Starting ACQ on Module Pirats Voltage')
+        log.debug('Starting ACQ on Module Pirats InOut')
         if self._th.is_alive():
             self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
             self._flag.set()
-            log.debug('Started ACQ on Module Pirats Voltage')
+            log.debug('Started ACQ on Module Pirats InOut')
 
     def stop(self):
         self._th_out.set()
         # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
         if self._th.is_alive():
-            log.error('Module Pirats Voltage thread has not stopped')
+            log.error('Module Pirats InOut thread has not stopped')
 
     def stop_acq(self):
         self._th_out.set()
         self._flag.clear()
-        log.info('Module Pirats Voltage ACQ has stopped')
+        log.info('Module Pirats InOut ACQ has stopped')
 
     @staticmethod
     def echo(whatever):
-        # silly function that returns what has received to show how to implement a command
         whatever = f'{whatever} que chispa!'
         return whatever
 
-    def set_voltage_channel(self, voltage_channels_str):
+    def set_output_state(self, output, state):
+        log.debug(f'Setting output {output} to state {state}')
         try:
-            if not voltage_channels_str:
-                self._voltage_channels_list = []
-            elif not ',' in voltage_channels_str:
-                self._voltage_channels_list = [int(voltage_channels_str)]
-            else:
-                self._voltage_channels_list = list(map(int, voltage_channels_str.split(',')))
-            log.debug(self._voltage_channels_list)
+            self._pirats_out_control.digital_write(output, state)
             return True
         except:
-            raise Exception(f'Invalid value for set channel ({voltage_channels_str}), it must be a number or a list')
+            raise Exception(f'Invalid value for output #{output} with state: {state}')

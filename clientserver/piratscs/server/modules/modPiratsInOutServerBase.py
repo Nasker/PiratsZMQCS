@@ -24,7 +24,6 @@ class ModPiratsInOutCommand(Command):
     def module(self):
         return self.app.mod_handler.get_mod('modpiratsinout')
 
-
 class EchoInOutCommand(ModPiratsInOutCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
@@ -42,21 +41,22 @@ class StopAcqCommand(ModPiratsInOutCommand):
         log.debug("Asked to start inout acquisition")
         return self.module.stop_acq()
 
-class SetInOutChannel(ModPiratsInOutCommand):
+class SetOutputState(ModPiratsInOutCommand):
     def execute(self):
-        val = self._kwargs.get('value', None)
-        log.debug(f"Asked to set measurement voltage channel to: '{val}'")
-        return self.module.set_voltage_channel(val)
+        output = self._kwargs.get('output', None)
+        state = self._kwargs.get('state', None)
+        log.debug(f"Asked to set output {output} to {state}")
+        return self.module.set_output_state(output, state)
 
-class ModPiratsVoltageCommandSet(CommandSet):
+class ModPiratsInOutCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoInOutCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_voltage_channel': SetInOutChannel
+        'set_output_state': SetOutputState
     }
 
-class ModPiratsVoltageBase(ModuleBase):
-    _command_set = ModPiratsVoltageCommandSet  # The class not the instance
-    _mod_name = 'modpiratsvoltage'
-    _async_topics = ['modpiratsvoltage_current_voltage']
+class ModPiratsInOutBase(ModuleBase):
+    _command_set = ModPiratsInOutCommandSet  # The class not the instance
+    _mod_name = 'modpiratsinout'
+    _async_topics = ['modpiratsinout_current_input_state']
