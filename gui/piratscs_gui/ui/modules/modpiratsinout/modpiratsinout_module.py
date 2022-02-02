@@ -29,6 +29,9 @@ colors = get_colors_list(N_CHANNELS)
 
 log = get_logger('modpiratsinout_gui')
 
+def int_to_bool_list(num, n_bits):
+    return [bool(num & (1<<n)) for n in range(n_bits)]
+
 class ModPiratsInOutBigWidget(QWidget):
     def __init__(self, module):
         self._module = module
@@ -45,14 +48,18 @@ class ModPiratsInOutBigWidget(QWidget):
         self._parent.backend.comm_client.modpiratsinout.stop_acq()
         log.debug("Stopped inputs state acquisition")
 
+    def _update_inputs_state(self, states_list):
+        for j in range(N_ROWS):
+            for i in range(N_COLS):
+                self._ui.inputs_gridLayout.itemAtPosition(j, i).widget().setEnabled(states_list[j*N_COLS + i])
+
     def _recvd_input(self, async_msg):
         inputs_states_list = async_msg.value.get('current_inputs_state', 0)
-        log.debug(f"INPUTS LIST ON GUI MODULE{inputs_states_list}")
-        inputs_shown_str =''
-        for n,inputs_dict in enumerate(inputs_states_list):
-            for key, value in inputs_dict.items():
-                inputs_shown_str += (f'-INPUT{key}:{value}  ')
+        log.debug(f"INPUTS LIST ON GUI MODULE: {inputs_states_list}")
+        inputs_states_list = int_to_bool_list(inputs_states_list, N_CHANNELS)
+        inputs_shown_str = str(inputs_states_list)
         self._ui.lbl_set_channel_recvd_on.setText(inputs_shown_str)
+        self._update_inputs_state(inputs_states_list)
 
     def _setup_ui(self):
         self._ui = Ui_ModulePiratsInOutBig()
