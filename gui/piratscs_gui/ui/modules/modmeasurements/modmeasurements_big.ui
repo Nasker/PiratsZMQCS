@@ -105,7 +105,20 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="measPeriodValue"/>
+            <widget class="QSpinBox" name="measPeriodValue">
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>1000</number>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="pb_period_set">
@@ -222,110 +235,92 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_9">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Asyncs</string>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Last Async(s) Received</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbl_last_voltage">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>0.0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <layout class="QHBoxLayout" name="horizontalLayout_14">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Last Async(s) Received</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLabel" name="lbl_last_voltage">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>0.0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="Line" name="line_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>File Name</string>
          </property>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_14">
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>File Name</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="measFileName"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_file_name_set">
-           <property name="text">
-            <string>Send</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLineEdit" name="measFileName"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="start_acq_btn">
+         <property name="text">
+          <string>Start Measurement</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QPushButton" name="start_acq_btn">
-           <property name="text">
-            <string>Start Sampling</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="stop_acq_btn">
-           <property name="text">
-            <string>Stop Sampling</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="stop_acq_btn">
+         <property name="text">
+          <string>Stop Measurement</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

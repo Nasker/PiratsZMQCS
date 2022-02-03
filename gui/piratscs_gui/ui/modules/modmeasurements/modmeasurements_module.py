@@ -24,8 +24,8 @@ from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
 log = get_logger('modmeasurements_gui')
 
-N_CHANNELS = 2
-N_ROWS = 1
+N_CHANNELS = 4
+N_ROWS = 2
 N_COLS = int(N_CHANNELS / N_ROWS)
 
 colors = get_colors_list(N_CHANNELS)
@@ -96,16 +96,21 @@ class ModMeasurementsBigWidget(QWidget):
 #        self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
+        self._ui.measTempCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
+        self._ui.measVoltageCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
+        self._ui.measPressureCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
+        self._ui.measWeightCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
+
         # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
 
-    def print_selected_channels_ledit(self):
+    def print_selected_measurements_ledit(self):
         active_channels = []
         for j in range (N_ROWS):
             for i in range(N_COLS):
                 if self._ui.gridLayout.itemAtPosition(j, i).widget().isChecked():
                     active_channels.append(i+j*N_COLS)
-        #self._ui.ledit_channel_set.setText(",".join(str(x) for x in active_channels))
+        self._ui.ledit_measurement_set.setText(",".join(str(x) for x in active_channels))
 
 
 class ModMeasurementsModule(Module):
