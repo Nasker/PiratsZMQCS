@@ -44,7 +44,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pb_channel_set">
+            <widget class="QPushButton" name="pb_measurement_set">
              <property name="text">
               <string>Send</string>
              </property>
@@ -105,7 +105,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="measPeriodValue">
+            <widget class="QSpinBox" name="spin_period_set">
              <property name="minimum">
               <number>10</number>
              </property>
@@ -302,7 +302,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="measFileName"/>
+        <widget class="QLineEdit" name="ledit_filename_set"/>
        </item>
       </layout>
      </item>
