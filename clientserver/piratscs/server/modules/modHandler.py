@@ -103,3 +103,13 @@ class ModHandler:
                 log.exception('Exception rise when stopping module')
             else:
                 log.info(f"Stopped module '{mod.__class__.__name__}'")
+
+    def connect_devices(self, devices_reference):
+        # Iterate over all loaded modules and execute its connect method
+        for k, mod in self._modules.items():
+            try:
+                mod.connect_devices(devices_reference)
+            except:
+                log.exception('Exception rise when connecting module')
+            else:
+                log.info(f"Connected module '{mod.__class__.__name__}'")

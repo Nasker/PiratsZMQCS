@@ -20,7 +20,6 @@ import datetime
 import time
 from threading import Thread, Event
 from piratscs.server.modules.modPiratsVoltageServerBase import ModPiratsVoltageBase
-from piratslib.controlNsensing.VoltageSense import VoltageSense
 
 log = get_logger('Pirats_Voltage_Mod')
 
@@ -30,11 +29,11 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
     def __init__(self, app):
         super().__init__(app=app)
         self._th = Thread(target=self._run)
-        self._pirats_voltage_sense = None
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
         self._voltage_channels_list = []
+        self._devices = None
 
     def _pub_current_voltage(self, value):
         self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
@@ -45,7 +44,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._voltage_channels_list:
-                voltages_list = self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
+                voltages_list = self._devices.get_voltage_readings(self._voltage_channels_list)
                 log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_voltage': voltages_list}
@@ -57,7 +56,9 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
 
     def initialize(self):
         log.debug('Initializing Module Pirats Voltage')
-        self._pirats_voltage_sense = VoltageSense()
+
+    def connect_devices(self, devices_reference):
+        self._devices = devices_reference
 
     def start(self):
         log.debug('Starting thread on Module Pirats Voltage')

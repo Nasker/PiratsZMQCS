@@ -20,7 +20,6 @@ import datetime
 import time
 from threading import Thread, Event
 from piratscs.server.modules.modPiratsWeightServerBase import ModPiratsWeightBase
-from piratslib.controlNsensing.WeightSense import WeightSense
 
 log = get_logger('Pirats_Weight_Mod')
 
@@ -30,11 +29,11 @@ class ModPiratsWeight(ModPiratsWeightBase):
     def __init__(self, app):
         super().__init__(app=app)
         self._th = Thread(target=self._run)
-        self._pirats_weight_sense = None
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
         self._weight_channels_list = []
+        self._devices = None
 
     def _pub_current_weight(self, value):
         self.app.server.pub_async('modpiratsweight_current_weight', value)
@@ -45,7 +44,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._weight_channels_list:
-                weights_list = self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
+                weights_list = self._devices.get_weight_readings(self._weight_channels_list)
                 log.debug(f'WEIGHTS LIST IN SERVER MODULE {weights_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_weight': weights_list}
@@ -56,11 +55,10 @@ class ModPiratsWeight(ModPiratsWeightBase):
             time.sleep(0.5)
 
     def initialize(self):
-        NOMINAL_LOAD = 10000
-        NOMINAL_OUTPUT = 0.002
-        FULL_SCALE_VOLT = 5.0
-        log.debug('Initializing module Pirats Weight')
-        self._pirats_weight_sense = WeightSense(NOMINAL_LOAD, NOMINAL_OUTPUT, FULL_SCALE_VOLT)
+        log.debug('Initializing Module Pirats Weight')
+
+    def connect_devices(self, devices_reference):
+        self._devices = devices_reference
 
     def start(self):
         log.debug('Starting thread on Module Pirats Weight')

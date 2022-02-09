@@ -20,8 +20,6 @@ import datetime
 import time
 from threading import Thread, Event
 from piratscs.server.modules.modPiratsInOutServerBase import ModPiratsInOutBase
-from piratslib.controlNsensing.DigitalOutputControl import DigitalOutputControl
-from piratslib.controlNsensing.DigitalInputSense import DigitalInputSense
 
 log = get_logger('Pirats_Voltage_Mod')
 
@@ -31,11 +29,10 @@ class ModPiratsInOut(ModPiratsInOutBase):
     def __init__(self, app):
         super().__init__(app=app)
         self._th = Thread(target=self._run)
-        self._pirats_in_sense = None
-        self._pirats_out_control = None
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
+        self._devices = None
 
     def _pub_current_state(self, value):
         self.app.server.pub_async('modpiratsinout_current_input_state', value)
@@ -45,7 +42,7 @@ class ModPiratsInOut(ModPiratsInOutBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            inputs_states_list = self._pirats_in_sense.digital_read_all()
+            inputs_states_list = self._devices.get_inputs_state()
             t = {'ts': datetime.datetime.utcnow().timestamp(),
                  'current_inputs_state': inputs_states_list}
             self._pub_current_state(t)
@@ -56,8 +53,9 @@ class ModPiratsInOut(ModPiratsInOutBase):
 
     def initialize(self):
         log.debug('Initializing Module Pirats InOut')
-        self._pirats_in_sense = DigitalInputSense()
-        self._pirats_out_control = DigitalOutputControl()
+
+    def connect_devices(self, devices_reference):
+        self._devices = devices_reference
 
     def start(self):
         log.debug('Starting thread on Module Pirats InOut')
@@ -76,7 +74,6 @@ class ModPiratsInOut(ModPiratsInOutBase):
 
     def stop(self):
         self._th_out.set()
-        # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
         if self._th.is_alive():
             log.error('Module Pirats InOut thread has not stopped')
@@ -94,7 +91,7 @@ class ModPiratsInOut(ModPiratsInOutBase):
     def set_output_state(self, output, state):
         log.debug(f'Setting output {output} to state {state}')
         try:
-            self._pirats_out_control.digital_write(output, state)
+            self._devices.set_output_state(output, state)
             return True
         except:
             raise Exception(f'Invalid value for output #{output} with state: {state}')

@@ -20,7 +20,6 @@ import datetime
 from threading import Thread, Event
 import time
 from piratscs.server.modules.modPiratsTempServerBase import ModPiratsTempBase
-from piratslib.controlNsensing.TemperatureSense import TemperatureSense
 
 log = get_logger('Pirats_Temp_Mod')
 
@@ -30,11 +29,11 @@ class ModPiratsTemp(ModPiratsTempBase):
     def __init__(self, app):
         super().__init__(app=app)
         self._th = Thread(target=self._run)
-        self._pirats_temp_sense = None
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
         self._temp_channels_list = []
+        self._devices = None
 
     def _pub_current_temp(self, value):
         self.app.server.pub_async('modpiratstemp_current_temp', value)
@@ -45,7 +44,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._temp_channels_list:
-                temps_list = self._pirats_temp_sense.get_temps_list(self._temp_channels_list)
+                temps_list = self._devices.get_temperature_readings(self._temp_channels_list)
                 log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_temp': temps_list}
@@ -57,7 +56,9 @@ class ModPiratsTemp(ModPiratsTempBase):
 
     def initialize(self):
         log.debug('Initializing Module Pirats Temp')
-        self._pirats_temp_sense = TemperatureSense()
+
+    def connect_devices(self, devices_reference):
+        self._devices = devices_reference
 
     def start(self):
         log.debug('Starting thread on Module Pirats Temp')

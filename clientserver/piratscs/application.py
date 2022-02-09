@@ -9,6 +9,8 @@ from piratscs.server.modules.modPiratsVoltageServer import ModPiratsVoltage
 from piratscs.server.modules.modPressureSenseServer import ModPressureSense
 from piratscs.server.modules.modPiratsInOutServer import ModPiratsInOut
 
+from piratscs.server.devices_manager.devicesManager import DevicesManager
+
 from piratscs.config import FullConfig
 
 set_root_logger(baselog)
@@ -23,6 +25,7 @@ class ServerApplication(object):
         self._config = config
         self._server = Server(app=self)
         self._mod_handler = ModHandler(app=self)
+        self._devices_manager = DevicesManager()
 
     @property
     def conf(self):
@@ -55,6 +58,7 @@ class ServerApplication(object):
         log.info("Starting server part of piratscs application")
         self._server.start()
         self._mod_handler.initialize()
+        self._mod_handler.connect_devices(self._devices_manager)
 
     def start_threads(self):
         log.info('Starting modules threads')
