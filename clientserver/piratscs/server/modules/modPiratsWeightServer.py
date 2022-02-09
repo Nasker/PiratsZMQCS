@@ -32,7 +32,6 @@ class ModPiratsWeight(ModPiratsWeightBase):
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
-        self._weight_channels_list = []
         self._devices = None
 
     def _pub_current_weight(self, value):
@@ -43,8 +42,8 @@ class ModPiratsWeight(ModPiratsWeightBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._weight_channels_list:
-                weights_list = self._devices.get_weight_readings(self._weight_channels_list)
+            if self._devices.get_weight_channels():
+                weights_list = self._devices.get_weight_readings()
                 log.debug(f'WEIGHTS LIST IN SERVER MODULE {weights_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_weight': weights_list}
@@ -100,12 +99,13 @@ class ModPiratsWeight(ModPiratsWeightBase):
         log.info(f'Setting weight channels {weight_channels_str}')
         try:
             if not weight_channels_str:
-                self._weight_channels_list = []
+                weight_channels_list = []
             elif not ',' in weight_channels_str:
-                self._weight_channels_list = [int(weight_channels_str)]
+                weight_channels_list = [int(weight_channels_str)]
             else:
-                self._weight_channels_list = list(map(int, weight_channels_str.split(',')))
-            log.debug(f'WEIGHT CHANNELS LIST: {self._weight_channels_list}')
+                weight_channels_list = list(map(int, weight_channels_str.split(',')))
+            log.debug(f'WEIGHT CHANNELS LIST: {weight_channels_list}')
+            self._devices.set_weight_channels(weight_channels_list)
             return True
         except:
             raise Exception(f'Invalid value for set channel ({weight_channels_str}), it must be a number or a list')

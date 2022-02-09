@@ -18,6 +18,10 @@ class DevicesManager:
         self._pirats_in_sense = None
         self._pirats_out_control = None
         self._pressure_sense = None
+        self._temp_channels_list = []
+        self._voltage_channels_list = []
+        self._weight_channels_list = []
+        self._pressure_channels_list = []
         self._init_devices()
 
     def _init_devices(self):
@@ -50,16 +54,16 @@ class DevicesManager:
         self._pirats_in_sense = DigitalInputSense()
         self._pirats_out_control = DigitalOutputControl()
 
-    def get_temperature_readings(self, channels_list):
-        return self._pirats_temperature_sense.get_temps_list(channels_list)
+    def get_temperature_readings(self):
+        return self._pirats_temperature_sense.get_temps_list(self._temp_channels_list)
 
-    def get_voltage_readings(self, channels_list):
-        return self._pirats_voltage_sense.get_voltages_list(channels_list)
+    def get_voltage_readings(self):
+        return self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
 
-    def get_weight_readings(self, channels_list):
-        return self._pirats_weight_sense.get_weights_list(channels_list)
+    def get_weight_readings(self):
+        return self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
 
-    def get_pressure_readings(self, channels_list=None):
+    def get_pressure_readings(self):
         return [{0: self._pressure_sense.get_measurement_value()}]
 
     def get_inputs_state(self):
@@ -67,3 +71,27 @@ class DevicesManager:
 
     def set_output_state(self, output, state):
         self._pirats_out_control.digital_write(output, state)
+
+    def set_temperature_channels(self, channels_list):
+        self._temp_channels_list = channels_list
+
+    def get_temperature_channels(self):
+        return self._temp_channels_list
+
+    def set_voltage_channels(self, channels_list):
+        self._voltage_channels_list = channels_list
+
+    def get_voltage_channels(self):
+        return self._voltage_channels_list
+
+    def set_weight_channels(self, channels_list):
+        self._weight_channels_list = channels_list
+
+    def get_weight_channels(self):
+        return self._weight_channels_list
+
+    def set_pressure_channels(self, channels_list):
+        self._pressure_channels_list = channels_list
+
+    def get_pressure_channels(self):
+        return self._pressure_channels_list

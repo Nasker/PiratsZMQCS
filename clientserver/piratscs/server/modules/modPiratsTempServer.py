@@ -32,7 +32,6 @@ class ModPiratsTemp(ModPiratsTempBase):
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
-        self._temp_channels_list = []
         self._devices = None
 
     def _pub_current_temp(self, value):
@@ -43,8 +42,8 @@ class ModPiratsTemp(ModPiratsTempBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._temp_channels_list:
-                temps_list = self._devices.get_temperature_readings(self._temp_channels_list)
+            if self._devices.get_temperature_channels():
+                temps_list = self._devices.get_temperature_readings()
                 log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_temp': temps_list}
@@ -97,12 +96,13 @@ class ModPiratsTemp(ModPiratsTempBase):
         log.info(f'Setting temp channels {temp_channels_str}')
         try:
             if not temp_channels_str:
-                self._temp_channels_list = []
+                temp_channels_list = []
             elif not ',' in temp_channels_str:
-                self._temp_channels_list = [int(temp_channels_str)]
+                temp_channels_list = [int(temp_channels_str)]
             else:
-                self._temp_channels_list = list(map(int, temp_channels_str.split(',')))
-            log.debug(self._temp_channels_list)
+                temp_channels_list = list(map(int, temp_channels_str.split(',')))
+            log.debug(temp_channels_list)
+            self._devices.set_temperature_channels(temp_channels_list)
             return True
         except:
             raise Exception(f'Invalid value for set channel ({temp_channels_str}), it must be a number or a list')

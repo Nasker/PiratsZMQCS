@@ -32,7 +32,6 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
-        self._voltage_channels_list = []
         self._devices = None
 
     def _pub_current_voltage(self, value):
@@ -43,8 +42,8 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._voltage_channels_list:
-                voltages_list = self._devices.get_voltage_readings(self._voltage_channels_list)
+            if self._devices.get_voltage_channels():
+                voltages_list = self._devices.get_voltage_readings()
                 log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_voltage': voltages_list}
@@ -96,12 +95,13 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
     def set_voltage_channel(self, voltage_channels_str):
         try:
             if not voltage_channels_str:
-                self._voltage_channels_list = []
+                voltage_channels_list = []
             elif not ',' in voltage_channels_str:
-                self._voltage_channels_list = [int(voltage_channels_str)]
+                voltage_channels_list = [int(voltage_channels_str)]
             else:
-                self._voltage_channels_list = list(map(int, voltage_channels_str.split(',')))
-            log.debug(self._voltage_channels_list)
+                voltage_channels_list = list(map(int, voltage_channels_str.split(',')))
+            log.debug(voltage_channels_list)
+            self._devices.set_voltage_channels(voltage_channels_list)
             return True
         except:
             raise Exception(f'Invalid value for set channel ({voltage_channels_str}), it must be a number or a list')

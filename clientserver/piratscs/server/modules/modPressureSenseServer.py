@@ -32,7 +32,6 @@ class ModPressureSense(ModPressureSenseBase):
         self._th_out = Event()
         self._th_out.set()
         self._flag = Event()
-        self._pressure_channels_list = []
         self._devices = None
 
     def _pub_current_pressure(self, value):
@@ -43,7 +42,7 @@ class ModPressureSense(ModPressureSenseBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._pressure_channels_list:
+            if self._devices.get_pressure_channels():
                 pressures_list = self._devices.get_pressure_readings()
                 log.debug(f'PRESSURES LIST IN SERVER MODULE {pressures_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -97,12 +96,13 @@ class ModPressureSense(ModPressureSenseBase):
     def set_pressure_channel(self, pressure_channels_str):
         try:
             if not pressure_channels_str:
-                self._pressure_channels_list = []
+                pressure_channels_list = []
             elif not ',' in pressure_channels_str:
-                self._pressure_channels_list = [int(pressure_channels_str)]
+                pressure_channels_list = [int(pressure_channels_str)]
             else:
-                self._pressure_channels_list = list(map(int, pressure_channels_str.split(',')))
-            log.debug(self._pressure_channels_list)
+                pressure_channels_list = list(map(int, pressure_channels_str.split(',')))
+            log.debug(pressure_channels_list)
+            self._devices.set_pressure_channels(pressure_channels_list)
             return True
         except:
             raise Exception(f'Invalid value for set channel ({pressure_channels_str}), it must be a number or a list')
