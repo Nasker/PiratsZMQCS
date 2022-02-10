@@ -46,7 +46,7 @@ class SelectMeasurements(ModMeasurementsCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
         log.debug(f"Asked to set measurement selection to: '{val}'")
-        return self.module.set_measurements(val)
+        return self.module.select_measurements(val)
 
 class SetPeriod(ModMeasurementsCommand):
     def execute(self):
@@ -72,5 +72,5 @@ class ModMeasurementsCommandSet(CommandSet):
 
 class ModMeasurementsBase(ModuleBase):
     _command_set = ModMeasurementsCommandSet  # The class not the instance
-    _mod_name = 'momeasurements'
+    _mod_name = 'modmeasurements'
     _async_topics = ['modmeasurements_current_measurements']

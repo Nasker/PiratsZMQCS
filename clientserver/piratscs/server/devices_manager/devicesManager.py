@@ -9,15 +9,19 @@ from pyvsr53dl.vsr53dl import PyVSR53DL
 
 log = get_logger('Devices_Manager')
 
+devices_list = ["temperature", "pressure", "weight", "voltage", "dig_in", "dig_out"]
+N_DEV_MEASUREMENT = 4
+
 class DevicesManager:
     def __init__(self):
         log.debug('Initializing Module Pirats Voltage')
         self._pirats_temperature_sense = None
-        self._pirats_voltage_sense = None
+        self._pressure_sense = None
         self._pirats_weight_sense = None
+        self._pirats_voltage_sense = None
         self._pirats_in_sense = None
         self._pirats_out_control = None
-        self._pressure_sense = None
+
         self._temp_channels_list = []
         self._voltage_channels_list = []
         self._weight_channels_list = []
@@ -54,24 +58,6 @@ class DevicesManager:
         self._pirats_in_sense = DigitalInputSense()
         self._pirats_out_control = DigitalOutputControl()
 
-    def get_temperature_readings(self):
-        return self._pirats_temperature_sense.get_temps_list(self._temp_channels_list)
-
-    def get_voltage_readings(self):
-        return self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
-
-    def get_weight_readings(self):
-        return self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
-
-    def get_pressure_readings(self):
-        return [{0: self._pressure_sense.get_measurement_value()}]
-
-    def get_inputs_state(self):
-        return self._pirats_in_sense.digital_read_all()
-
-    def set_output_state(self, output, state):
-        self._pirats_out_control.digital_write(output, state)
-
     @property
     def temperature_channels(self):
         return self._temp_channels_list
@@ -100,4 +86,20 @@ class DevicesManager:
     def pressure_channels(self, channels_list):
         self._pressure_channels_list = channels_list
 
+    def get_temperature_readings(self):
+        return self._pirats_temperature_sense.get_temps_list(self._temp_channels_list)
 
+    def get_voltage_readings(self):
+        return self._pirats_voltage_sense.get_voltages_list(self._voltage_channels_list)
+
+    def get_weight_readings(self):
+        return self._pirats_weight_sense.get_weights_list(self._weight_channels_list)
+
+    def get_pressure_readings(self):
+        return [{0: self._pressure_sense.get_measurement_value()}]
+
+    def get_inputs_state(self):
+        return self._pirats_in_sense.digital_read_all()
+
+    def set_output_state(self, output, state):
+        self._pirats_out_control.digital_write(output, state)

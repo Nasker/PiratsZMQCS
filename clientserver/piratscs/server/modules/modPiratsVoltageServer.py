@@ -35,8 +35,12 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._devices = None
         self._period = 0.5
 
-    def _pub_current_voltage(self, value):
-        self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
+    def _pub_current_measurements(self, values):
+        self.app.server.pub_async('modpiratstemp_current_temp', values[0])
+        self.app.server.pub_async('modpressure_current_pressure', values[1])
+        self.app.server.pub_async('modpiratsweight_current_weight', values[2])
+        self.app.server.pub_async('modpiratsvoltage_current_voltage', values[3])
+
 
     def _run(self):
         # What is executed inside the thread
@@ -48,7 +52,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
                 log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
                      'current_voltage': voltages_list}
-                self._pub_current_voltage(t)
+                self._pub_current_measurements(t)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')

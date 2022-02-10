@@ -39,9 +39,9 @@ class MainWindow(QMainWindow):
         # This should be moved to a mod handler, is so ugly here
         # self._add_example_module()
         self._add_piratstemp_module()
+        self._add_pressuresense_module()
         self._add_piratsweight_module()
         self._add_piratsvoltage_module()
-        self._add_pressuresense_module()
         self._add_piratsinout_module()
         self._add_measurements_module()
 
