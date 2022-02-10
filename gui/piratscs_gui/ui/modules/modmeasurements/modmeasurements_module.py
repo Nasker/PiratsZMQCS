@@ -63,7 +63,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
         """
     def _set_period(self):
-        value = self._ui.spin_period_set.value()
+        value = self._ui.spin_period_set.value() / 1000.0
         log.debug(f"Setting period to {value}")
 
     def _start_acq(self):
@@ -108,7 +108,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.measPressureCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
         self._ui.measWeightCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
         self._ui.pb_measurement_set.clicked.connect(self._set_measurements)
-        self._ui.pb_period_set.clicked.connect(self._set_period)
+
 
         # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)

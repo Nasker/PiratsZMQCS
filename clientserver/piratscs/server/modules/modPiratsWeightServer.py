@@ -33,6 +33,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
         self._th_out.set()
         self._flag = Event()
         self._devices = None
+        self._period = 0.5
 
     def _pub_current_weight(self, value):
         self.app.server.pub_async('modpiratsweight_current_weight', value)
@@ -42,7 +43,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._devices.get_weight_channels():
+            if self._devices.weight_channels:
                 weights_list = self._devices.get_weight_readings()
                 log.debug(f'WEIGHTS LIST IN SERVER MODULE {weights_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -51,7 +52,7 @@ class ModPiratsWeight(ModPiratsWeightBase):
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} weights')
-            time.sleep(0.5)
+            time.sleep(self._period)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Weight')
@@ -105,7 +106,17 @@ class ModPiratsWeight(ModPiratsWeightBase):
             else:
                 weight_channels_list = list(map(int, weight_channels_str.split(',')))
             log.debug(f'WEIGHT CHANNELS LIST: {weight_channels_list}')
-            self._devices.set_weight_channels(weight_channels_list)
+            self._devices.weight_channels = weight_channels_list
             return True
         except:
             raise Exception(f'Invalid value for set channel ({weight_channels_str}), it must be a number or a list')
+
+    def set_period(self, period):
+        try:
+            period = float(period)
+            if period < 0.01:
+                raise Exception('Period must be greater than 0.01')
+            self._period = period
+            return True
+        except:
+            raise Exception(f'Invalid value for set period ({period}), it must be a number')

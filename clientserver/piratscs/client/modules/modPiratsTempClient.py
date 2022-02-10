@@ -40,3 +40,8 @@ class ModPiratsTemp(ClientModuleBase):
         command = self.mod_name + '.' + 'set_temp_channel'
         kwargs = {'value': temp_channel}
         return self._client.command(command=command, kwargs=kwargs)
+
+    def set_period(self, period):
+        command = self.mod_name + '.' + 'set_period'
+        kwargs = {'value': period}
+        return self._client.command(command=command, kwargs=kwargs)

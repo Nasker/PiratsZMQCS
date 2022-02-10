@@ -48,12 +48,19 @@ class SetWeightChannel(ModPiratsWeightCommand):
         log.debug(f"Asked to set measurement weight channel to: '{val}'")
         return self.module.set_weight_channel(val)
 
+class SetPeriod(ModPiratsWeightCommand):
+    def execute(self):
+        val = self._kwargs.get('value', None)
+        log.debug(f"Asked to set weight period to: '{val}'")
+        return self.module.set_period(val)
+
 class ModPiratsWeightCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoWeightCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_weight_channel': SetWeightChannel
+        'set_weight_channel': SetWeightChannel,
+        'set_period': SetPeriod
     }
 
 class ModPiratsWeightBase(ModuleBase):

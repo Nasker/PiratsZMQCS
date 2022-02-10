@@ -33,6 +33,7 @@ class ModPressureSense(ModPressureSenseBase):
         self._th_out.set()
         self._flag = Event()
         self._devices = None
+        self._period = 1.0
 
     def _pub_current_pressure(self, value):
         self.app.server.pub_async('modpressuresense_current_pressure', value)
@@ -42,7 +43,7 @@ class ModPressureSense(ModPressureSenseBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._devices.get_pressure_channels():
+            if self._devices.pressure_channels:
                 pressures_list = self._devices.get_pressure_readings()
                 log.debug(f'PRESSURES LIST IN SERVER MODULE {pressures_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -51,7 +52,7 @@ class ModPressureSense(ModPressureSenseBase):
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} pressures')
-            time.sleep(1.0)
+            time.sleep(self._period)
 
     def initialize(self):
         log.debug('Initializing Module Pressure Sense')
@@ -102,7 +103,17 @@ class ModPressureSense(ModPressureSenseBase):
             else:
                 pressure_channels_list = list(map(int, pressure_channels_str.split(',')))
             log.debug(pressure_channels_list)
-            self._devices.set_pressure_channels(pressure_channels_list)
+            self._devices.pressure_channels = pressure_channels_list
             return True
         except:
             raise Exception(f'Invalid value for set channel ({pressure_channels_str}), it must be a number or a list')
+
+    def set_period(self, period):
+        try:
+            period = float(period)
+            if period < 0.01:
+                raise Exception('Period must be greater than 0.01')
+            self._period = period
+            return True
+        except:
+            raise Exception(f'Invalid value for set period ({period}), it must be a number')

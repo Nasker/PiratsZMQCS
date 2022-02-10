@@ -52,13 +52,19 @@ class SetPressureChannel(ModPressureSenseCommand):
         log.debug(f"Asked to set measurement pressure channel to: '{val}'")
         return self.module.set_pressure_channel(val)
 
+class SetPeriod(ModPressureSenseCommand):
+    def execute(self):
+        val = self._kwargs.get('value', None)
+        log.debug(f"Asked to set pressure period to: '{val}'")
+        return self.module.set_period(val)
 
 class ModPressureSenseCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoPressureCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_pressure_channel': SetPressureChannel
+        'set_pressure_channel': SetPressureChannel,
+        'set_period': SetPeriod
     }
 
 

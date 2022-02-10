@@ -42,7 +42,7 @@ class StopAcqCommand(ModMeasurementsCommand):
         log.debug("Asked to start measurements acquisition")
         return self.module.stop_acq()
 
-class SetMeasurements(ModMeasurementsCommand):
+class SelectMeasurements(ModMeasurementsCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
         log.debug(f"Asked to set measurement selection to: '{val}'")
@@ -54,13 +54,20 @@ class SetPeriod(ModMeasurementsCommand):
         log.debug(f"Asked to set measurements period to: '{val}'")
         return self.module.set_period(val)
 
+class SetMeasurementsFileName(ModMeasurementsCommand):
+    def execute(self):
+        val = self._kwargs.get('value', None)
+        log.debug(f"Asked to set measurements file name to: '{val}'")
+        return self.module.set_file_name(val)
+
 class ModMeasurementsCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoMeasurementsCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_measurements': SetMeasurements,
-        'set_period': SetPeriod
+        'select_measurements': SelectMeasurements,
+        'set_period': SetPeriod,
+        'set_file_name': SetMeasurementsFileName
     }
 
 class ModMeasurementsBase(ModuleBase):

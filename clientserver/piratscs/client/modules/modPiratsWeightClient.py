@@ -40,3 +40,8 @@ class ModPiratsWeight(ClientModuleBase):
         command = self.mod_name + '.' + 'set_weight_channel'
         kwargs = {'value': weight_channel}
         return self._client.command(command=command, kwargs=kwargs)
+
+    def set_period(self, period):
+        command = self.mod_name + '.' + 'set_period'
+        kwargs = {'value': period}
+        return self._client.command(command=command, kwargs=kwargs)

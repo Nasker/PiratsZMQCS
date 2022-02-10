@@ -33,6 +33,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._th_out.set()
         self._flag = Event()
         self._devices = None
+        self._period = 0.5
 
     def _pub_current_voltage(self, value):
         self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
@@ -42,7 +43,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._devices.get_voltage_channels():
+            if self._devices.voltage_channels:
                 voltages_list = self._devices.get_voltage_readings()
                 log.debug(f'VOLTS LIST IN SERVER MODULE {voltages_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -51,7 +52,7 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')
-            time.sleep(0.5)
+            time.sleep(self._period)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Voltage')
@@ -101,7 +102,18 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
             else:
                 voltage_channels_list = list(map(int, voltage_channels_str.split(',')))
             log.debug(voltage_channels_list)
-            self._devices.set_voltage_channels(voltage_channels_list)
+            self._devices.voltage_channels = voltage_channels_list
             return True
         except:
             raise Exception(f'Invalid value for set channel ({voltage_channels_str}), it must be a number or a list')
+
+    def set_period(self, period):
+        try:
+            period = float(period)
+            if period < 0.01:
+                raise Exception('Period must be greater than 0.01')
+            self._period = period
+            return True
+        except:
+            raise Exception(f'Invalid value for set period ({period}), it must be a number')
+

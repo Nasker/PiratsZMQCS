@@ -60,6 +60,11 @@ class ModPiratsTempBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
 
+    def _set_period(self):
+        value = self._ui.spin_period_set.value() / 1000.0
+        self._parent.backend.comm_client.modpiratstemp.set_period(value)
+        log.debug(f"Setting period to {value}")
+
     def _start_acq(self):
         self._parent.backend.comm_client.modpiratstemp.start_acq()
         log.debug("Started temperature acquisition")
@@ -105,6 +110,7 @@ class ModPiratsTempBigWidget(QWidget):
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
+        self._ui.pb_period_set.clicked.connect(self._set_period)
         self._parent.backend.signaler.sign_be_comm_async_modpiratstemp_current_temp.connect(self._recvd_temp)
 
     def print_selected_channels_ledit(self):

@@ -33,6 +33,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         self._th_out.set()
         self._flag = Event()
         self._devices = None
+        self._period = 0.5
 
     def _pub_current_temp(self, value):
         self.app.server.pub_async('modpiratstemp_current_temp', value)
@@ -42,7 +43,7 @@ class ModPiratsTemp(ModPiratsTempBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._devices.get_temperature_channels():
+            if self._devices.temperature_channels:
                 temps_list = self._devices.get_temperature_readings()
                 log.debug(f'TEMPS LIST IN SERVER MODULE {temps_list}')
                 t = {'ts': datetime.datetime.utcnow().timestamp(),
@@ -51,7 +52,7 @@ class ModPiratsTemp(ModPiratsTempBase):
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} temperatures')
-            time.sleep(0.5)
+            time.sleep(self._period)
 
     def initialize(self):
         log.debug('Initializing Module Pirats Temp')
@@ -102,7 +103,17 @@ class ModPiratsTemp(ModPiratsTempBase):
             else:
                 temp_channels_list = list(map(int, temp_channels_str.split(',')))
             log.debug(temp_channels_list)
-            self._devices.set_temperature_channels(temp_channels_list)
+            self._devices.temperature_channels = temp_channels_list
             return True
         except:
             raise Exception(f'Invalid value for set channel ({temp_channels_str}), it must be a number or a list')
+
+    def set_period(self, period):
+        try:
+            period = float(period)
+            if period < 0.01:
+                raise Exception('Period must be greater than 0.01')
+            self._period = period
+            return True
+        except:
+            raise Exception(f'Invalid value for set period ({period}), it must be a number')

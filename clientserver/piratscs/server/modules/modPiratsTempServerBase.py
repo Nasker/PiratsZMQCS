@@ -49,12 +49,19 @@ class SetTempChannel(ModPiratsTempCommand):
         log.debug(f"Asked to set measurement temp channel to: '{val}'")
         return self.module.set_temp_channel(val)
 
+class SetPeriod(ModPiratsTempCommand):
+    def execute(self):
+        val = self._kwargs.get('value', None)
+        log.debug(f"Asked to set temperature period to: '{val}'")
+        return self.module.set_period(val)
+
 class ModPiratsTempCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoTempCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_temp_channel': SetTempChannel
+        'set_temp_channel': SetTempChannel,
+        'set_period': SetPeriod
     }
 
 class ModPiratsTempBase(ModuleBase):

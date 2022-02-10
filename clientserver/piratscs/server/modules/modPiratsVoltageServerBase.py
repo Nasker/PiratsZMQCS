@@ -48,12 +48,19 @@ class SetVoltageChannel(ModPiratsVoltageCommand):
         log.debug(f"Asked to set measurement voltage channel to: '{val}'")
         return self.module.set_voltage_channel(val)
 
+class SetPeriod(ModPiratsVoltageCommand):
+    def execute(self):
+        val = self._kwargs.get('value', None)
+        log.debug(f"Asked to set voltage period to: '{val}'")
+        return self.module.set_period(val)
+
 class ModPiratsVoltageCommandSet(CommandSet):
     _commands_available = {
         'echo': EchoVoltageCommand,
         'start_acq': StartAcqCommand,
         'stop_acq': StopAcqCommand,
-        'set_voltage_channel': SetVoltageChannel
+        'set_voltage_channel': SetVoltageChannel,
+        'set_period': SetPeriod
     }
 
 class ModPiratsVoltageBase(ModuleBase):
