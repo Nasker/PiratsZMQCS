@@ -52,7 +52,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._events_list.clear()
         self._events_list = [EventCounter() for _ in range(0, created_measurements)]
         self._plots.clear()
-        #self._plots = [self._ui.chart.plot() for _ in range(0, created_measurements)]
+        # self._plots = [self._ui.chart.plot() for _ in range(0, created_measurements)]
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -80,17 +80,17 @@ class ModMeasurementsBigWidget(QWidget):
         # self._ui.chart.clear()
         log.debug("Clearing chart")
 
-    def _recvd_voltage(self, async_msg):
-        voltage_list = async_msg.value.get('current_voltage', 0)
-        log.debug(f"VOLTAGE LIST ON GUI MODULE{voltage_list}")
-        voltage_shown_str =''
-        for n,voltage_dict in enumerate(voltage_list):
+    def _recvd_measurements(self, async_msg):
+        measurement_list = async_msg.value.get('current_measurements', 0)
+        log.debug(f"MEASUREMENTS LIST ON GUI MODULE{measurement_list}")
+        measurement_shown_str =''
+        for n,voltage_dict in enumerate(measurement_list):
             for key, value in voltage_dict.items():
-                voltage_shown_str += (f'-CH{key}: {value:.3f} V   ')
+                measurement_shown_str += (f'-CH{key}: {value:.3f} V   ')
                 self._events_list[n].new_event(value)
                 x, y = self._events_list[n].averages_chart_data
                 self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
-        self._ui.lbl_last_voltage.setText(voltage_shown_str)
+        self._ui.lbl_last_voltage.setText(measurement_shown_str)
 
     def _setup_ui(self):
         self._ui = Ui_ModuleMeasurementsBig()
@@ -98,10 +98,10 @@ class ModMeasurementsBigWidget(QWidget):
         robotomono15 = QFont("Roboto", 15)
         # self._plots.append(self._ui.chart.plot())
         # log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
-       # log.debug(f"self._plot type: {type(self._plots[0])}")
-        #log.debug(f"widget id in setup_ui: {id(self)}")
-        #self._plots[0].setPen((200, 200, 100))
-#        self._ui.pb_channel_set.clicked.connect(self._set_channel)
+        # log.debug(f"self._plot type: {type(self._plots[0])}")
+        # log.debug(f"widget id in setup_ui: {id(self)}")
+        # self._plots[0].setPen((200, 200, 100))
+        # self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._ui.measTempCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
@@ -111,7 +111,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.pb_measurement_set.clicked.connect(self._set_measurements)
         self._ui.pb_period_set.clicked.connect(self._set_period)
         # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
-        self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
+        self._parent.backend.signaler.sign_be_comm_async_modmeasurements_current_measurements.connect(self._recvd_measurements)
 
     def print_selected_measurements_ledit(self):
         active_channels = []
