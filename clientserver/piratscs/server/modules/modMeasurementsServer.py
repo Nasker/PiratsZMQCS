@@ -16,10 +16,10 @@ __maintainer__ = 'Oscar Martinez'
 __email__ = 'omartinez@ifae.es'
 
 from piratscs.logger import get_logger
-import datetime
 import time
 from threading import Thread, Event
 from piratscs.server.modules.modMeasurementsServerBase import ModMeasurementsBase
+from piratscs.server.measurements_manager.MeasurementsManager import MeasurementsManager
 
 log = get_logger('Measurements_Mod')
 
@@ -35,6 +35,8 @@ class ModMeasurements(ModMeasurementsBase):
         self._devices = None
         self._period = 0.5
         self._current_filename = None
+        self._measurement_manager = MeasurementsManager()
+        self._current_measurements_list = []
 
     def _pub_current_measurements(self, value):
         self.app.server.pub_async('modpiratstemp_current_temp', value)
@@ -47,7 +49,7 @@ class ModMeasurements(ModMeasurementsBase):
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._voltage_channels_list:
+            if self._current_measurements_list:
 
                 count += 1
                 if count % 100 == 0:
@@ -61,31 +63,32 @@ class ModMeasurements(ModMeasurementsBase):
         self._devices = devices_reference
 
     def start(self):
-        log.debug('Starting thread on Module Pirats Voltage')
+        log.debug('Starting thread on Measurement Modules')
         self._th.start()
-        log.debug('Started thread on Module Pirats Voltage')
+        log.debug('Started thread on Measurement Modules')
 
     def start_acq(self):
-        log.debug('Starting ACQ on Module Pirats Voltage')
+        log.debug('Starting ACQ on Measurement Modules')
         if self._th.is_alive():
             self._flag.set()
             log.debug("Thread is already alive")
         else:
             self._th.start()
             self._flag.set()
-            log.debug('Started ACQ on Module Pirats Voltage')
+            log.debug('Started ACQ on Measurement Modules')
+            self._measurement_manager.create_measurements_file(self._current_filename, self._devices)
 
     def stop(self):
         self._th_out.set()
         # set timeout longer than max wait_time
         self._th.join(timeout=1.1)
         if self._th.is_alive():
-            log.error('Module Pirats Voltage thread has not stopped')
+            log.error('Measurement Modules thread has not stopped')
 
     def stop_acq(self):
         self._th_out.set()
         self._flag.clear()
-        log.info('Module Pirats Voltage ACQ has stopped')
+        log.info('Measurement Modules ACQ has stopped')
 
     @staticmethod
     def echo(whatever):
@@ -93,18 +96,19 @@ class ModMeasurements(ModMeasurementsBase):
         whatever = f'{whatever} que chispa!'
         return whatever
 
-    def set_voltage_channel(self, voltage_channels_str):
+    def select_measurements(self, measurements_list_str):
         try:
-            if not voltage_channels_str:
-                self._voltage_channels_list = []
-            elif not ',' in voltage_channels_str:
-                self._voltage_channels_list = [int(voltage_channels_str)]
+            if not measurements_list_str:
+                self._current_measurements_list = []
+            elif not ',' in measurements_list_str:
+                self._current_measurements_list = [int(measurements_list_str)]
             else:
-                self._voltage_channels_list = list(map(int, voltage_channels_str.split(',')))
-            log.debug(self._voltage_channels_list)
+                self._current_measurements_list = list(map(int, measurements_list_str.split(',')))
+            log.debug(self._current_measurements_list)
             return True
         except:
-            raise Exception(f'Invalid value for set channel ({voltage_channels_str}), it must be a number or a list')
+            raise Exception(f'Invalid value for select measurements ({self._current_measurements_list}), '
+                            f'it must be a number or a list')
 
     def set_period(self, period):
         try:
