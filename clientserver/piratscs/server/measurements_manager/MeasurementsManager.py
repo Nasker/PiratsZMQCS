@@ -18,9 +18,9 @@ class MeasurementsManager:
         self.dataset_count = 0
         date_time = self._now_timestamp_str()
         if filename is None or filename == '':
-            self._filename = f'measurements/{date_time}_measurements.csv'
+            self._filename = f'../measurements/{date_time}_measurements.csv'
         else:
-            self._filename = f'measurements/{filename}.csv'
+            self._filename = f'../measurements/{filename}.csv'
         with open(self._filename, 'w', newline='') as file:
             dataset_writer = csv.writer(file)
             header = ["date", "time"]

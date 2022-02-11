@@ -38,7 +38,9 @@ class ModMeasurements(ModMeasurementsBase):
         self._measurement_manager = MeasurementsManager()
 
     def _pub_current_measurements(self, value):
-        """self.app.server.pub_async('modpiratstemp_current_temp', value)
+        log.debug(f'Publishing current measurements: {value}')
+        """
+        self.app.server.pub_async('modpiratstemp_current_temp', value)
         self.app.server.pub_async('modpressure_current_pressure', value)
         self.app.server.pub_async('modpiratsweight_current_weight', value)
         self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
@@ -50,6 +52,7 @@ class ModMeasurements(ModMeasurementsBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._devices.current_devices_list:
+                self._pub_current_measurements(count)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')
