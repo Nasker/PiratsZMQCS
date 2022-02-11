@@ -46,14 +46,13 @@ class ModMeasurementsBigWidget(QWidget):
     def _set_measurements(self):
         value = self._ui.ledit_measurement_set.text()
         log.debug(f"Setting measurements to {value}")
-        """
-        ret_val = self._parent.backend.comm_client.modpiratsvoltage.set_voltage_channel(value)
-        created_channels = value.count(",") + 1
+        ret_val = self._parent.backend.comm_client.modmeasurements.select_measurements(value)
+        created_measurements = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._events_list.clear()
-        self._events_list = [EventCounter() for _ in range(0, created_channels)]
+        self._events_list = [EventCounter() for _ in range(0, created_measurements)]
         self._plots.clear()
-        self._plots = [self._ui.chart.plot() for _ in range(0, created_channels)]
+        #self._plots = [self._ui.chart.plot() for _ in range(0, created_measurements)]
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -61,18 +60,20 @@ class ModMeasurementsBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.ans))
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
-        """
+
     def _set_period(self):
         value = self._ui.spin_period_set.value() / 1000.0
+        self._parent.backend.comm_client.modmeasurements.set_period(value)
         log.debug(f"Setting period to {value}")
 
     def _start_acq(self):
         log.debug(f'Filename: {self._ui.ledit_filename_set.text()}')
-        # self._parent.backend.comm_client.modpiratsvoltage.start_acq()
+        self._parent.backend.comm_client.modmeasurements.set_file_name(self._ui.ledit_filename_set.text())
+        self._parent.backend.comm_client.modmeasurements.start_acq()
         log.debug("Started voltage acquisition")
 
     def _stop_acq(self):
-        # self._parent.backend.comm_client.modpiratsvoltage.stop_acq()
+        self._parent.backend.comm_client.modmeasurements.stop_acq()
         log.debug("Stopped voltage acquisition")
 
     def _clear_chart(self):
@@ -108,8 +109,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.measPressureCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
         self._ui.measWeightCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
         self._ui.pb_measurement_set.clicked.connect(self._set_measurements)
-
-
+        self._ui.pb_period_set.clicked.connect(self._set_period)
         # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_modpiratsvoltage_current_voltage.connect(self._recvd_voltage)
 

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ModuleMeasurementsBig(object):
     def setupUi(self, ModuleMeasurementsBig):
         ModuleMeasurementsBig.setObjectName("ModuleMeasurementsBig")
-        ModuleMeasurementsBig.resize(1239, 888)
+        ModuleMeasurementsBig.resize(1226, 888)
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(ModuleMeasurementsBig)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout()

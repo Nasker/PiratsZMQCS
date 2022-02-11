@@ -36,21 +36,20 @@ class ModMeasurements(ModMeasurementsBase):
         self._period = 0.5
         self._current_filename = None
         self._measurement_manager = MeasurementsManager()
-        self._current_measurements_list = []
 
     def _pub_current_measurements(self, value):
-        self.app.server.pub_async('modpiratstemp_current_temp', value)
+        """self.app.server.pub_async('modpiratstemp_current_temp', value)
         self.app.server.pub_async('modpressure_current_pressure', value)
         self.app.server.pub_async('modpiratsweight_current_weight', value)
         self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
+        """
 
     def _run(self):
         # What is executed inside the thread
         count = 0
         while self._th_out.is_set():
             self._flag.wait()
-            if self._current_measurements_list:
-
+            if self._devices.current_devices_list:
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')
@@ -76,7 +75,8 @@ class ModMeasurements(ModMeasurementsBase):
             self._th.start()
             self._flag.set()
             log.debug('Started ACQ on Measurement Modules')
-            self._measurement_manager.create_measurements_file(self._current_filename, self._devices)
+            self._measurement_manager.create_measurements_file(self._current_filename,
+                                                               self._devices.get_measurements_header())
 
     def stop(self):
         self._th_out.set()
@@ -93,21 +93,21 @@ class ModMeasurements(ModMeasurementsBase):
     @staticmethod
     def echo(whatever):
         # silly function that returns what has received to show how to implement a command
-        whatever = f'{whatever} que chispa!'
+        whatever = f'{whatever} medime esta!'
         return whatever
 
     def select_measurements(self, measurements_list_str):
         try:
             if not measurements_list_str:
-                self._current_measurements_list = []
+                self._devices.current_devices_list = []
             elif not ',' in measurements_list_str:
-                self._current_measurements_list = [int(measurements_list_str)]
+                self._devices.current_devices_list  = [int(measurements_list_str)]
             else:
-                self._current_measurements_list = list(map(int, measurements_list_str.split(',')))
-            log.debug(self._current_measurements_list)
+                self._devices.current_devices_list = list(map(int, measurements_list_str.split(',')))
+            log.debug(self._devices.current_devices_list )
             return True
         except:
-            raise Exception(f'Invalid value for select measurements ({self._current_measurements_list}), '
+            raise Exception(f'Invalid value for select measurements ({self._devices.current_devices_list }), '
                             f'it must be a number or a list')
 
     def set_period(self, period):
@@ -120,7 +120,7 @@ class ModMeasurements(ModMeasurementsBase):
         except:
             raise Exception(f'Invalid value for set period ({period}), it must be a number')
 
-    def set_filename(self, filename):
+    def set_file_name(self, filename):
         try:
             self._current_filename = filename
             return True

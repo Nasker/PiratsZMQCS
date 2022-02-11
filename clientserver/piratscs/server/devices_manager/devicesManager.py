@@ -60,7 +60,7 @@ class DevicesManager:
         self._pirats_in_sense = DigitalInputSense()
         self._pirats_out_control = DigitalOutputControl()
 
-    def compose_measurements_dict(self):
+    def _compose_measurements_dict(self):
         measurements_dict = {}
         for device in self._current_devices_list:
             if device == devices_dict["temperature"]:
@@ -74,14 +74,17 @@ class DevicesManager:
         log.debug('Composing Measurements Dict: {}'.format(measurements_dict))
         return measurements_dict
 
-    def compose_measurements_header(self):
-        measurements_dict = self.compose_measurements_dict()
+    def _compose_measurements_header(self):
+        measurements_dict = self._compose_measurements_dict()
         measurements_header = []
         for measurement_type in measurements_dict:
             for channel in measurements_dict[measurement_type]:
                 measurements_header.append(f'{devices_list[measurement_type]}_ch{channel}')
         log.debug('Composing Measurements Header: {}'.format(measurements_header))
         return measurements_header
+
+    def get_measurements_header(self):
+        return self._compose_measurements_header()
 
     @property
     def current_devices_list(self):
@@ -96,7 +99,7 @@ class DevicesManager:
     @temperature_channels.setter
     def temperature_channels(self, channels_list):
         self._temp_channels_list = channels_list
-        self.compose_measurements_header()
+        self._compose_measurements_header()
 
     @property
     def voltage_channels(self):
@@ -104,7 +107,7 @@ class DevicesManager:
     @voltage_channels.setter
     def voltage_channels(self, channels_list):
         self._voltage_channels_list = channels_list
-        self.compose_measurements_header()
+        self._compose_measurements_header()
 
     @property
     def weight_channels(self):
@@ -112,7 +115,7 @@ class DevicesManager:
     @weight_channels.setter
     def weight_channels(self, channels_list):
         self._weight_channels_list = channels_list
-        self.compose_measurements_header()
+        self._compose_measurements_header()
 
     @property
     def pressure_channels(self):
@@ -120,7 +123,7 @@ class DevicesManager:
     @pressure_channels.setter
     def pressure_channels(self, channels_list):
         self._pressure_channels_list = channels_list
-        self.compose_measurements_header()
+        self._compose_measurements_header()
 
     def get_temperature_readings(self):
         return self._pirats_temperature_sense.get_temps_list(self._temp_channels_list)

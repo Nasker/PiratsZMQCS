@@ -8,6 +8,7 @@ from piratscs.server.modules.modPiratsWeightServer import ModPiratsWeight
 from piratscs.server.modules.modPiratsVoltageServer import ModPiratsVoltage
 from piratscs.server.modules.modPressureSenseServer import ModPressureSense
 from piratscs.server.modules.modPiratsInOutServer import ModPiratsInOut
+from piratscs.server.modules.modMeasurementsServer import ModMeasurements
 
 from piratscs.server.devices_manager.devicesManager import DevicesManager
 
@@ -52,6 +53,7 @@ class ServerApplication(object):
         self._mod_handler.register_module(ModPiratsVoltage(app=self))
         self._mod_handler.register_module(ModPressureSense(app=self))
         self._mod_handler.register_module(ModPiratsInOut(app=self))
+        self._mod_handler.register_module(ModMeasurements(app=self))
 
     def start(self):
         # starts the threads of the server (both req-rep and pub-sub)
