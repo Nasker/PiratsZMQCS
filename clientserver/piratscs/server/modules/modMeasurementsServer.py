@@ -37,14 +37,17 @@ class ModMeasurements(ModMeasurementsBase):
         self._current_filename = None
         self._measurement_manager = MeasurementsManager()
 
-    def _pub_current_measurements(self, value):
-        log.debug(f'Publishing current measurements: {value}')
-        """
-        self.app.server.pub_async('modpiratstemp_current_temp', value)
-        self.app.server.pub_async('modpressure_current_pressure', value)
-        self.app.server.pub_async('modpiratsweight_current_weight', value)
-        self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
-        """
+    def _pub_current_measurements(self, measurements_dict):
+        #log.debug(f'Publishing current measurements: {value}')
+        for key in measurements_dict:
+            if key == self._devices.devices_dict["temperature"]:
+                self.app.server.pub_async('modpiratstemp_current_temp', measurements_dict[key])
+            elif key == self._devices.devices_dict["pressure"]:
+                self.app.server.pub_async('modpressure_current_pressure', measurements_dict[key])
+            elif key == self._devices.devices_dict["weight"]:
+                self.app.server.pub_async('modpiratsweight_current_weight', measurements_dict[key])
+            elif key == self._devices.devices_dict["voltage"]:
+                self.app.server.pub_async('modpiratsvoltage_current_voltage', measurements_dict[key])
 
     def _run(self):
         # What is executed inside the thread
@@ -53,7 +56,9 @@ class ModMeasurements(ModMeasurementsBase):
             self._flag.wait()
             if self._devices.current_devices_list:
                 current_measurements = self._devices.get_selected_measurements()
-                self._pub_current_measurements(current_measurements)
+                # self._pub_current_measurements(current_measurements)
+                dataset = self._measurement_manager.measurements_dict_to_dataset(current_measurements)
+                self._measurement_manager.append_measurement_dataset(dataset)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')
