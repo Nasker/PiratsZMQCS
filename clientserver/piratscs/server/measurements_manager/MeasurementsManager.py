@@ -18,9 +18,9 @@ class MeasurementsManager:
         self.dataset_count = 0
         date_time = self._now_timestamp_str()
         if filename is None or filename == '':
-            self._filename = f'{date_time}_measurements.csv' #../measurements/
+            self._filename = f'./measurements/{date_time}_measurements.csv' #../measurements/
         else:
-            self._filename = f'{filename}.csv' # ../measurements/
+            self._filename = f'./measurements/{filename}.csv' # ../measurements/
         with open(self._filename, 'w', newline='') as file:
             dataset_writer = csv.writer(file)
             header = ["date", "time"]
@@ -30,17 +30,18 @@ class MeasurementsManager:
 
     def append_measurement_dataset(self, data):
         dataset = self._now_time_stamp_list()
-        dataset.append(data)
+        dataset.extend(data)
         self.dataset_count += 1
         log.info(f'#{self.dataset_count}: {dataset}')
         self._write_measurement(dataset)
 
     @staticmethod
     def measurements_dict_to_dataset(measurements_dict):
-        dataset = []
-        for values in measurements_dict.values():
-            dataset.append(values)
-        return dataset
+        measurements_list = []
+        for devices_measures in measurements_dict.values():
+            for measure in devices_measures:
+                measurements_list.extend(measure.values())
+        return measurements_list
 
     def _write_measurement(self, dataset):
         with open(self._filename, 'a', newline='') as file:
