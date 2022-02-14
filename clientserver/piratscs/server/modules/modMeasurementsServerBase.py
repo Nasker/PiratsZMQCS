@@ -73,4 +73,4 @@ class ModMeasurementsCommandSet(CommandSet):
 class ModMeasurementsBase(ModuleBase):
     _command_set = ModMeasurementsCommandSet  # The class not the instance
     _mod_name = 'modmeasurements'
-    _async_topics = ['modmeasurements_current_measurements']
+    _async_topics = ['measurement_temp', 'measurement_pressure', 'measurement_weight', 'measurement_voltage']

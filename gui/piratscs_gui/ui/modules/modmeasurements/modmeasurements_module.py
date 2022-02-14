@@ -81,6 +81,8 @@ class ModMeasurementsBigWidget(QWidget):
         log.debug("Clearing chart")
 
     def _recvd_measurements(self, async_msg):
+        log.debug(f"Received measurements: {async_msg.as_dict}")
+        """
         measurement_list = async_msg.value.get('current_measurements', 0)
         log.debug(f"MEASUREMENTS LIST ON GUI MODULE{measurement_list}")
         measurement_shown_str =''
@@ -91,6 +93,7 @@ class ModMeasurementsBigWidget(QWidget):
                 x, y = self._events_list[n].averages_chart_data
                 self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
         self._ui.lbl_last_voltage.setText(measurement_shown_str)
+        """
 
     def _setup_ui(self):
         self._ui = Ui_ModuleMeasurementsBig()
@@ -111,7 +114,10 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.pb_measurement_set.clicked.connect(self._set_measurements)
         self._ui.pb_period_set.clicked.connect(self._set_period)
         # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
-        self._parent.backend.signaler.sign_be_comm_async_modmeasurements_current_measurements.connect(self._recvd_measurements)
+        self._parent.backend.signaler.sign_be_comm_async_measurement_temp.connect(self._recvd_measurements)
+        self._parent.backend.signaler.sign_be_comm_async_measurement_pressure.connect(self._recvd_measurements)
+        self._parent.backend.signaler.sign_be_comm_async_measurement_weight.connect(self._recvd_measurements)
+        self._parent.backend.signaler.sign_be_comm_async_measurement_voltage.connect(self._recvd_measurements)
 
     def print_selected_measurements_ledit(self):
         active_channels = []

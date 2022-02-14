@@ -31,7 +31,10 @@ class Signaler(QObject):
     sign_be_comm_async_modpiratsvoltage_current_voltage = pyqtSignal('PyQt_PyObject')
     sign_be_comm_async_modpressuresense_current_pressure = pyqtSignal('PyQt_PyObject')
     sign_be_comm_async_modpiratsinout_current_input_state = pyqtSignal('PyQt_PyObject')
-    sign_be_comm_async_modmeasurements_current_measurements = pyqtSignal('PyQt_PyObject')
+    sign_be_comm_async_measurement_temp = pyqtSignal('PyQt_PyObject')
+    sign_be_comm_async_measurement_pressure = pyqtSignal('PyQt_PyObject')
+    sign_be_comm_async_measurement_weight = pyqtSignal('PyQt_PyObject')
+    sign_be_comm_async_measurement_voltage = pyqtSignal('PyQt_PyObject')
 
 
     def __init__(self, parent):
