@@ -52,7 +52,8 @@ class ModMeasurements(ModMeasurementsBase):
         while self._th_out.is_set():
             self._flag.wait()
             if self._devices.current_devices_list:
-                self._pub_current_measurements(count)
+                current_measurements = self._devices.get_selected_measurements()
+                self._pub_current_measurements(current_measurements)
                 count += 1
                 if count % 100 == 0:
                     log.debug(f'Published {count} voltages')

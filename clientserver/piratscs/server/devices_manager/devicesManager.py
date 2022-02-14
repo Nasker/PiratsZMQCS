@@ -9,11 +9,11 @@ from pyvsr53dl.vsr53dl import PyVSR53DL
 
 log = get_logger('Devices_Manager')
 
-devices_list = ["temperature", "pressure", "weight", "voltage", "dig_in", "dig_out"]
-devices_dict = {"temperature":0, "pressure":1, "weight":2, "voltage":3, "dig_in":4, "dig_out":5}
-N_DEV_MEASUREMENT = 4
 
 class DevicesManager:
+    devices_list = ["temperature", "pressure", "weight", "voltage", "dig_in", "dig_out"]
+    devices_dict = {"temperature": 0, "pressure": 1, "weight": 2, "voltage": 3, "dig_in": 4, "dig_out": 5}
+    N_DEV_MEASUREMENT = 4
     def __init__(self):
         log.debug('Initializing Module Pirats Voltage')
         self._current_devices_list = [0, 1, 2, 3]
@@ -60,31 +60,45 @@ class DevicesManager:
         self._pirats_in_sense = DigitalInputSense()
         self._pirats_out_control = DigitalOutputControl()
 
-    def _compose_measurements_dict(self):
-        measurements_dict = {}
+    def _compose_devices_dict(self):
+        select_devices_dict = {}
         for device in self._current_devices_list:
-            if device == devices_dict["temperature"]:
-                measurements_dict[devices_dict["temperature"]] = self._temp_channels_list
-            elif device == devices_dict["pressure"]:
-                measurements_dict[devices_dict["pressure"]] = self._pressure_channels_list
-            elif device == devices_dict["weight"]:
-                measurements_dict[devices_dict["weight"]] = self._weight_channels_list
-            elif device == devices_dict["voltage"]:
-                measurements_dict[devices_dict["voltage"]] = self._voltage_channels_list
-        log.debug('Composing Measurements Dict: {}'.format(measurements_dict))
-        return measurements_dict
+            if device == self.devices_dict["temperature"]:
+                select_devices_dict[self.devices_dict["temperature"]] = self._temp_channels_list
+            elif device == self.devices_dict["pressure"]:
+                select_devices_dict[self.devices_dict["pressure"]] = self._pressure_channels_list
+            elif device == self.devices_dict["weight"]:
+                select_devices_dict[self.devices_dict["weight"]] = self._weight_channels_list
+            elif device == self.devices_dict["voltage"]:
+                select_devices_dict[self.devices_dict["voltage"]] = self._voltage_channels_list
+        # log.debug('Composing Select Devices Dict: {}'.format(select_devices_dict))
+        return select_devices_dict
 
     def _compose_measurements_header(self):
-        measurements_dict = self._compose_measurements_dict()
+        measurements_dict = self._compose_devices_dict()
         measurements_header = []
         for measurement_type in measurements_dict:
             for channel in measurements_dict[measurement_type]:
-                measurements_header.append(f'{devices_list[measurement_type]}_ch{channel}')
-        log.debug('Composing Measurements Header: {}'.format(measurements_header))
+                measurements_header.append(f'{self.devices_list[measurement_type]}_ch{channel}')
+        # log.debug('Composing Measurements Header: {}'.format(measurements_header))
         return measurements_header
 
     def get_measurements_header(self):
         return self._compose_measurements_header()
+
+    def get_selected_measurements(self):
+        current_measurements_dict = {}
+        for device in self._current_devices_list:
+            if device == self.devices_dict["temperature"]:
+                current_measurements_dict[device] = self.get_temperature_readings()
+            elif device == self.devices_dict["pressure"]:
+                current_measurements_dict[device] = self.get_pressure_readings()
+            elif device == self.devices_dict["weight"]:
+                current_measurements_dict[device] = self.get_weight_readings()
+            elif device == self.devices_dict["voltage"]:
+                current_measurements_dict[device] = self.get_voltage_readings()
+        # log.debug('Composing Selected Measurements Dict: {}'.format(current_measurements_dict))
+        return current_measurements_dict
 
     @property
     def current_devices_list(self):
