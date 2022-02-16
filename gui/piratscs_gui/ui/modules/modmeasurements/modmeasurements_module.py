@@ -77,34 +77,47 @@ class ModMeasurementsBigWidget(QWidget):
         log.debug("Stopped voltage acquisition")
 
     def _clear_chart(self):
-        # self._ui.chart.clear()
-        log.debug("Clearing chart")
+        self._ui.tempGraph.clear()
+        self._ui.pressureGraph.clear()
+        self._ui.weightGraph.clear()
+        self._ui.voltageGraph.clear()
+        log.debug("Clearing charts")
 
     def _recvd_measurements(self, async_msg):
-        log.debug(f"Received measurements: {async_msg.as_dict}")
-        """
-        measurement_list = async_msg.value.get('current_measurements', 0)
-        log.debug(f"MEASUREMENTS LIST ON GUI MODULE{measurement_list}")
-        measurement_shown_str =''
-        for n,voltage_dict in enumerate(measurement_list):
-            for key, value in voltage_dict.items():
-                measurement_shown_str += (f'-CH{key}: {value:.3f} V   ')
-                self._events_list[n].new_event(value)
-                x, y = self._events_list[n].averages_chart_data
-                self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
-        self._ui.lbl_last_voltage.setText(measurement_shown_str)
-        """
+        last_measurement_text = f"{ async_msg.as_dict['contents']['topic'] } : "
+        last_measurement_text += f"{ async_msg.as_dict['contents']['value'][0]}"
+        self._ui.lbl_last_measurement.setText(last_measurement_text)
+        if async_msg.as_dict['contents']['topic'] == 'measurement_temp':
+            self.process_temp_async(async_msg.as_dict['contents']['value'][0])
+        elif async_msg.as_dict['contents']['topic'] == 'measurement_pressure':
+            self.process_pressure_async(async_msg.as_dict['contents']['value'][0])
+        elif async_msg.as_dict['contents']['topic'] == 'measurement_weight':
+            self.process_weight_async(async_msg.as_dict['contents']['value'][0])
+        elif async_msg.as_dict['contents']['topic'] == 'measurement_voltage':
+            self.process_voltage_async(async_msg.as_dict['contents']['value'][0])
+
+    def process_temp_async(self, async_dict):
+        log.debug(f"Received temperature: {async_dict}")
+
+    def process_pressure_async(self, async_dict):
+        log.debug(f"Received pressure: {async_dict}")
+
+    def process_weight_async(self, async_dict):
+        log.debug(f"Received weight: {async_dict}")
+
+    def process_voltage_async(self, async_dict):
+        log.debug(f"Received voltage: {async_dict}")
+
 
     def _setup_ui(self):
         self._ui = Ui_ModuleMeasurementsBig()
         self._ui.setupUi(self)
         robotomono15 = QFont("Roboto", 15)
-        # self._plots.append(self._ui.chart.plot())
+        self._plots.append(self._ui.tempGraph.plot())
         # log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
         # log.debug(f"self._plot type: {type(self._plots[0])}")
         # log.debug(f"widget id in setup_ui: {id(self)}")
         # self._plots[0].setPen((200, 200, 100))
-        # self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._ui.measTempCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
@@ -113,7 +126,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._ui.measWeightCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
         self._ui.pb_measurement_set.clicked.connect(self._set_measurements)
         self._ui.pb_period_set.clicked.connect(self._set_period)
-        # self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
+        self._ui.btn_clear_chart.clicked.connect(self._clear_chart)
         self._parent.backend.signaler.sign_be_comm_async_measurement_temp.connect(self._recvd_measurements)
         self._parent.backend.signaler.sign_be_comm_async_measurement_pressure.connect(self._recvd_measurements)
         self._parent.backend.signaler.sign_be_comm_async_measurement_weight.connect(self._recvd_measurements)
