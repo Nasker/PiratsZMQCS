@@ -14,6 +14,7 @@ class DevicesManager:
     devices_list = ["temperature", "pressure", "weight", "voltage", "dig_in", "dig_out"]
     devices_dict = {"temperature": 0, "pressure": 1, "weight": 2, "voltage": 3, "dig_in": 4, "dig_out": 5}
     N_DEV_MEASUREMENT = 4
+
     def __init__(self):
         log.debug('Initializing Module Pirats Voltage')
         self._current_devices_list = [0, 1, 2, 3]
@@ -99,6 +100,9 @@ class DevicesManager:
                 current_measurements_dict[device] = self.get_voltage_readings()
         # log.debug('Composing Selected Measurements Dict: {}'.format(current_measurements_dict))
         return current_measurements_dict
+
+    def get_select_devices_channels(self):
+        return self._compose_devices_dict()
 
     @property
     def current_devices_list(self):

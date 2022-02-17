@@ -135,3 +135,6 @@ class ModMeasurements(ModMeasurementsBase):
             return True
         except:
             raise Exception(f'Invalid value for set filename ({filename}), it must be a string')
+
+    def get_select_devices_channels(self):
+        return self._devices.get_select_devices_channels()

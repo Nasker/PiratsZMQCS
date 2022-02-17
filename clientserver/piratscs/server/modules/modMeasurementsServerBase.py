@@ -19,6 +19,7 @@ from piratscs.server.commands import Command, CommandSet
 
 log = get_logger('Measurements_Mod_For_Cli')
 
+
 class ModMeasurementsCommand(Command):
     @property
     def module(self):
@@ -32,15 +33,18 @@ class EchoMeasurementsCommand(ModMeasurementsCommand):
             log.debug('Asked to echo a \'None\' value')
         return self.module.echo(whatever=val)
 
+
 class StartAcqCommand(ModMeasurementsCommand):
     def execute(self):
         log.debug("Asked to start measurements acquisition")
         return self.module.start_acq()
 
+
 class StopAcqCommand(ModMeasurementsCommand):
     def execute(self):
         log.debug("Asked to start measurements acquisition")
         return self.module.stop_acq()
+
 
 class SelectMeasurements(ModMeasurementsCommand):
     def execute(self):
@@ -48,17 +52,26 @@ class SelectMeasurements(ModMeasurementsCommand):
         log.debug(f"Asked to set measurement selection to: '{val}'")
         return self.module.select_measurements(val)
 
+
 class SetPeriod(ModMeasurementsCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
         log.debug(f"Asked to set measurements period to: '{val}'")
         return self.module.set_period(val)
 
+
 class SetMeasurementsFileName(ModMeasurementsCommand):
     def execute(self):
         val = self._kwargs.get('value', None)
         log.debug(f"Asked to set measurements file name to: '{val}'")
         return self.module.set_file_name(val)
+
+
+class GetSelectDevicesChannels(ModMeasurementsCommand):
+    def execute(self):
+        log.debug("Asked to get select devices channels")
+        return self.module.get_select_devices_channels()
+
 
 class ModMeasurementsCommandSet(CommandSet):
     _commands_available = {
@@ -67,8 +80,10 @@ class ModMeasurementsCommandSet(CommandSet):
         'stop_acq': StopAcqCommand,
         'select_measurements': SelectMeasurements,
         'set_period': SetPeriod,
-        'set_file_name': SetMeasurementsFileName
+        'set_file_name': SetMeasurementsFileName,
+        'get_select_devices_channels': GetSelectDevicesChannels
     }
+
 
 class ModMeasurementsBase(ModuleBase):
     _command_set = ModMeasurementsCommandSet  # The class not the instance

@@ -30,6 +30,7 @@ N_COLS = int(N_CHANNELS / N_ROWS)
 
 colors = get_colors_list(N_CHANNELS)
 
+
 class ModMeasurementsBigWidget(QWidget):
     def __init__(self, module):
         self._module = module
@@ -84,8 +85,8 @@ class ModMeasurementsBigWidget(QWidget):
         log.debug("Clearing charts")
 
     def _recvd_measurements(self, async_msg):
-        last_measurement_text = f"{ async_msg.as_dict['contents']['topic'] } : "
-        last_measurement_text += f"{ async_msg.as_dict['contents']['value'][0]}"
+        last_measurement_text = f"{async_msg.as_dict['contents']['topic']} : "
+        last_measurement_text += f"{async_msg.as_dict['contents']['value'][0]}"
         self._ui.lbl_last_measurement.setText(last_measurement_text)
         if async_msg.as_dict['contents']['topic'] == 'measurement_temp':
             self.process_temp_async(async_msg.as_dict['contents']['value'][0])
@@ -107,7 +108,6 @@ class ModMeasurementsBigWidget(QWidget):
 
     def process_voltage_async(self, async_dict):
         log.debug(f"Received voltage: {async_dict}")
-
 
     def _setup_ui(self):
         self._ui = Ui_ModuleMeasurementsBig()
@@ -134,10 +134,10 @@ class ModMeasurementsBigWidget(QWidget):
 
     def print_selected_measurements_ledit(self):
         active_channels = []
-        for j in range (N_ROWS):
+        for j in range(N_ROWS):
             for i in range(N_COLS):
                 if self._ui.gridLayout.itemAtPosition(j, i).widget().isChecked():
-                    active_channels.append(i+j*N_COLS)
+                    active_channels.append(i + j * N_COLS)
         self._ui.ledit_measurement_set.setText(",".join(str(x) for x in active_channels))
 
 
