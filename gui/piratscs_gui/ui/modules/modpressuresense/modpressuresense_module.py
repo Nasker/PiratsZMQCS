@@ -21,6 +21,7 @@ from piratscs_gui.ui.modules.module import Module
 from piratscs_gui.ui.modules.modpressuresense.modpressuresense_big_ui import Ui_ModulePressureSenseBig
 from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
+from piratscs.server.devices_manager.devicesManager import DevicesManager
 
 log = get_logger('modpiratssense_gui')
 
@@ -32,6 +33,7 @@ colors = get_colors_list(N_CHANNELS)
 
 class ModPressureSenseBigWidget(QWidget):
     def __init__(self, module):
+        self._device_id = DevicesManager.devices_dict["pressure"]
         self._module = module
         self._parent = module.parent
         super().__init__(self._parent)

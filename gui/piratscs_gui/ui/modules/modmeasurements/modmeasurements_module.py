@@ -41,6 +41,7 @@ class ModMeasurementsBigWidget(QWidget):
         self._plots = []
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
+        self._selected_devices_channels = None
         self._events_list = []
         self._events_list.append(EventCounter())
 
@@ -61,6 +62,8 @@ class ModMeasurementsBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.ans))
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
+        self._selected_devices_channels = self._parent.backend.comm_client.modmeasurements.get_select_devices_channels().as_dict['contents']['ans']
+        log.debug(f"Selected devices and channels: {self._selected_devices_channels}")
 
     def _set_period(self):
         value = self._ui.spin_period_set.value() / 1000.0
@@ -86,16 +89,16 @@ class ModMeasurementsBigWidget(QWidget):
 
     def _recvd_measurements(self, async_msg):
         last_measurement_text = f"{async_msg.as_dict['contents']['topic']} : "
-        last_measurement_text += f"{async_msg.as_dict['contents']['value'][0]}"
+        last_measurement_text += f"{async_msg.as_dict['contents']['value']}"
         self._ui.lbl_last_measurement.setText(last_measurement_text)
         if async_msg.as_dict['contents']['topic'] == 'measurement_temp':
-            self.process_temp_async(async_msg.as_dict['contents']['value'][0])
+            self.process_temp_async(async_msg.as_dict['contents']['value'])
         elif async_msg.as_dict['contents']['topic'] == 'measurement_pressure':
-            self.process_pressure_async(async_msg.as_dict['contents']['value'][0])
+            self.process_pressure_async(async_msg.as_dict['contents']['value'])
         elif async_msg.as_dict['contents']['topic'] == 'measurement_weight':
-            self.process_weight_async(async_msg.as_dict['contents']['value'][0])
+            self.process_weight_async(async_msg.as_dict['contents']['value'])
         elif async_msg.as_dict['contents']['topic'] == 'measurement_voltage':
-            self.process_voltage_async(async_msg.as_dict['contents']['value'][0])
+            self.process_voltage_async(async_msg.as_dict['contents']['value'])
 
     def process_temp_async(self, async_dict):
         log.debug(f"Received temperature: {async_dict}")

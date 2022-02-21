@@ -50,3 +50,7 @@ class ModMeasurements(ClientModuleBase):
         command = self.mod_name + '.' + 'set_file_name'
         kwargs = {'value': file_name}
         return self._client.command(command=command, kwargs=kwargs)
+
+    def get_select_devices_channels(self):
+        command = self.mod_name + '.' + 'get_select_devices_channels'
+        return self._client.command(command=command)
