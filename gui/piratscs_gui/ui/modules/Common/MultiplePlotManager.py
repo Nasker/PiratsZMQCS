@@ -3,6 +3,7 @@ from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 
 
 class MultiplePlotManager():
+    devices_dict = {"temperature": 0, "pressure": 1, "weight": 2, "voltage": 3, "dig_in": 4, "dig_out": 5}
     def __init__(self):
         self._plots_dict = {0:[], 1:[], 2:[], 3:[]}
         self._events_list_dict = {0:[], 1:[], 2:[], 3:[]}
