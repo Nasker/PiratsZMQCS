@@ -28,7 +28,6 @@ log = get_logger('modpiratstemp_gui')
 N_CHANNELS = 16
 N_ROWS = 2
 N_COLS = int(N_CHANNELS / N_ROWS)
-
 colors = get_colors_list(N_CHANNELS)
 
 class ModPiratsTempBigWidget(QWidget):
@@ -38,13 +37,8 @@ class ModPiratsTempBigWidget(QWidget):
         self._parent = module.parent
         super().__init__(self._parent)
         self._plot_man = MultiplePlotManager()
-        # self._events = EventCounter()
-        # self._plot = None
-        # self._plots = []
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
-        # self._events_list = []
-        # self._events_list.append(EventCounter())
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
@@ -53,15 +47,8 @@ class ModPiratsTempBigWidget(QWidget):
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._plot_man.get_plot(self._device_id).clear()
         self._plot_man.set_plot(self._device_id, [self._ui.chart.plot() for _ in range(0, created_channels)])
-
         self._plot_man.get_events_list(self._device_id).clear()
         self._plot_man.set_events_list(self._device_id, [EventCounter() for _ in range(0, created_channels)])
-
-        #self._events_list.clear()
-        #self._events_list = [EventCounter() for _ in range(0, created_channels)]
-        # self._plots.clear()
-        # self._plots = [self._ui.chart.plot() for _ in range(0, created_channels)]
-
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -93,11 +80,8 @@ class ModPiratsTempBigWidget(QWidget):
             for key, value in temp_dict.items():
                 temp_shown_str += (f'-CH{key}: {value:.2f} ºC   ')
                 self._plot_man.get_events_list(self._device_id)[n].new_event(value)
-                # self._events_list[n].new_event(value)
                 x, y = self._plot_man.get_events_list(self._device_id)[n].averages_chart_data
-                # x, y = self._events_list[n].averages_chart_data
                 self._plot_man.get_plot(self._device_id)[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
-                # self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
         self._ui.lbl_last_temp.setText(temp_shown_str)
 
     def _setup_ui(self):

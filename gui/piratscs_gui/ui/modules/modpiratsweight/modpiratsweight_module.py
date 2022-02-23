@@ -28,7 +28,6 @@ log = get_logger('modpiratstemp_gui')
 N_CHANNELS = 2
 N_ROWS = 1
 N_COLS = int(N_CHANNELS / N_ROWS)
-
 colors = get_colors_list(N_CHANNELS)
 
 class ModPiratsWeightBigWidget(QWidget):
@@ -37,23 +36,19 @@ class ModPiratsWeightBigWidget(QWidget):
         self._module = module
         self._parent = module.parent
         super().__init__(self._parent)
-        # self._events = EventCounter()
-        # self._plot = None
-        self._plots = []
+        self._plot_man = MultiplePlotManager()
         self._setup_ui()
         self._default_label_style_sheet = self._ui.lbl_set_channel_recvd.styleSheet()
-        self._events_list = []
-        self._events_list.append(EventCounter())
 
     def _set_channel(self):
         value = self._ui.ledit_channel_set.text()
         ret_val = self._parent.backend.comm_client.modpiratsweight.set_weight_channel(value)
         created_channels = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
-        self._events_list.clear()
-        self._events_list = [EventCounter() for _ in range(0, created_channels)]
-        self._plots.clear()
-        self._plots = [self._ui.chart.plot() for _ in range(0, created_channels)]
+        self._plot_man.get_plot(self._device_id).clear()
+        self._plot_man.set_plot(self._device_id, [self._ui.chart.plot() for _ in range(0, created_channels)])
+        self._plot_man.get_events_list(self._device_id).clear()
+        self._plot_man.set_events_list(self._device_id, [EventCounter() for _ in range(0, created_channels)])
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
@@ -80,14 +75,13 @@ class ModPiratsWeightBigWidget(QWidget):
 
     def _recvd_weight(self, async_msg):
         weight_list = async_msg.value.get('current_weight', 0)
-        log.debug(f"WEIGHT LIST ON GUI MODULE{weight_list}")
         weight_shown_str =''
         for n,temp_dict in enumerate(weight_list):
             for key, value in temp_dict.items():
                 weight_shown_str += (f'-CH{key}: {value:.2f} Kg   ')
-                self._events_list[n].new_event(value)
-                x, y = self._events_list[n].averages_chart_data
-                self._plots[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
+                self._plot_man.get_events_list(self._device_id)[n].new_event(value)
+                x, y = self._plot_man.get_events_list(self._device_id)[n].averages_chart_data
+                self._plot_man.get_plot(self._device_id)[n].setData(x=x, y=y, pen=colors[int(key)], thickness=3)
         self._ui.lbl_last_weight.setText(weight_shown_str)
 
     def _setup_ui(self):
@@ -104,11 +98,8 @@ class ModPiratsWeightBigWidget(QWidget):
                 self.select_btn_ch.clicked.connect(self.print_selected_channels_ledit)
         robotomono15 = QFont("Roboto", 15)
         self._ui.lbl_last_weight.setFont(robotomono15)
-        self._plots.append(self._ui.chart.plot())
-        log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
-        log.debug(f"self._plot type: {type(self._plots[0])}")
-        log.debug(f"widget id in setup_ui: {id(self)}")
-        self._plots[0].setPen((200, 200, 100))
+        self._plot_man.set_plot(self._device_id, self._ui.chart.plot())
+        self._plot_man.get_plot(self._device_id).setPen((200, 200, 100))
         self._ui.pb_channel_set.clicked.connect(self._set_channel)
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)

@@ -35,12 +35,8 @@ class ModPiratsVoltage(ModPiratsVoltageBase):
         self._devices = None
         self._period = 0.5
 
-    def _pub_current_measurements(self, values):
-        self.app.server.pub_async('modpiratstemp_current_temp', values[0])
-        self.app.server.pub_async('modpressure_current_pressure', values[1])
-        self.app.server.pub_async('modpiratsweight_current_weight', values[2])
-        self.app.server.pub_async('modpiratsvoltage_current_voltage', values[3])
-
+    def _pub_current_measurements(self, value):
+        self.app.server.pub_async('modpiratsvoltage_current_voltage', value)
 
     def _run(self):
         # What is executed inside the thread
