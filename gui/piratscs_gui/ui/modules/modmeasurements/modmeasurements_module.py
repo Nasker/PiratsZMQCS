@@ -12,14 +12,12 @@ __email__ = 'omartinez@ifae.es'
 
 import os
 import datetime
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QAction
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon
 from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
 from piratscs_gui.ui.modules.modmeasurements.modmeasurements_big_ui import Ui_ModuleMeasurementsBig
-from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 from piratscs_gui.ui.modules.Common.MultiplePlotManager import MultiplePlotManager
 
@@ -28,7 +26,6 @@ log = get_logger('modmeasurements_gui')
 N_CHANNELS = 4
 N_ROWS = 2
 N_COLS = int(N_CHANNELS / N_ROWS)
-
 colors = get_colors_list(N_CHANNELS)
 
 
@@ -49,7 +46,6 @@ class ModMeasurementsBigWidget(QWidget):
         value = self._ui.ledit_measurement_set.text()
         log.debug(f"Setting measurements to {value}")
         ret_val = self._parent.backend.comm_client.modmeasurements.select_measurements(value)
-        created_measurements = value.count(",") + 1
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
@@ -59,31 +55,25 @@ class ModMeasurementsBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
         self._selected_devices_channels = self._parent.backend.comm_client.modmeasurements.get_select_devices_channels().as_dict['contents']['ans']
-
         temp_created_channels = len(self._selected_devices_channels[f'{self._temp_device_id}'])
         pressure_created_channels = len(self._selected_devices_channels[f'{self._pressure_device_id}'])
         weight_created_channels = len(self._selected_devices_channels[f'{self._weight_device_id}'])
         voltage_created_channels = len(self._selected_devices_channels[f'{self._voltage_device_id}'])
-
         self._plot_man.get_plot(self._temp_device_id).clear()
         self._plot_man.set_plot(self._temp_device_id, [self._ui.tempGraph.plot() for _ in range(0, temp_created_channels)])
         self._plot_man.reset_channels(self._temp_device_id, temp_created_channels, self._ui.tempGraph.plot())
-
         self._plot_man.get_plot(self._pressure_device_id).clear()
         self._plot_man.set_plot(self._pressure_device_id,
                                 [self._ui.pressureGraph.plot() for _ in range(0, pressure_created_channels)])
         self._plot_man.reset_channels(self._pressure_device_id, pressure_created_channels, self._ui.pressureGraph.plot())
-
         self._plot_man.get_plot(self._weight_device_id).clear()
         self._plot_man.set_plot(self._weight_device_id,
                                 [self._ui.weightGraph.plot() for _ in range(0, weight_created_channels)])
         self._plot_man.reset_channels(self._weight_device_id, weight_created_channels, self._ui.weightGraph.plot())
-
         self._plot_man.get_plot(self._voltage_device_id).clear()
         self._plot_man.set_plot(self._voltage_device_id,
                                 [self._ui.voltageGraph.plot() for _ in range(0, voltage_created_channels)])
         self._plot_man.reset_channels(self._voltage_device_id, voltage_created_channels, self._ui.voltageGraph.plot())
-
 
     def _set_period(self):
         value = self._ui.spin_period_set.value() / 1000.0
@@ -159,12 +149,6 @@ class ModMeasurementsBigWidget(QWidget):
     def _setup_ui(self):
         self._ui = Ui_ModuleMeasurementsBig()
         self._ui.setupUi(self)
-        robotomono15 = QFont("Roboto", 15)
-        #self._plots.append(self._ui.tempGraph.plot())
-        # log.debug(f"self._ui.chart type: {type(self._ui.chart)}")
-        # log.debug(f"self._plot type: {type(self._plots[0])}")
-        # log.debug(f"widget id in setup_ui: {id(self)}")
-        # self._plots[0].setPen((200, 200, 100))
         self._ui.start_acq_btn.clicked.connect(self._start_acq)
         self._ui.stop_acq_btn.clicked.connect(self._stop_acq)
         self._ui.measTempCheckBox.stateChanged.connect(self.print_selected_measurements_ledit)
@@ -216,21 +200,3 @@ class ModMeasurementsModule(Module):
             print("adding sub window to mdi")
             self._parent.central.addSubWindow(self._widget)
         self._widget.show()
-
-
-"""
-        self._plot_man.get_plot(self._temp_device_id).clear()
-        self._plot_man.set_plot(self._temp_device_id, [self._ui.tempGraph.plot() for _ in range(0, created_channels)])
-        self._plot_man.reset_channels(self._temp_device_id, created_channels, self._ui.tempGraph.plot())
-
-        self._plot_man.get_plot(self._pressure_device_id).clear()
-        self._plot_man.set_plot(self._pressure_device_id, [self._ui.pressureGraph.plot() for _ in range(0, created_channels)])
-        self._plot_man.reset_channels(self._pressure_device_id, created_channels, self._ui.pressureGraph.plot())
-
-        self._plot_man.get_plot(self._weight_device_id).clear()
-        self._plot_man.set_plot(self._weight_device_id, [self._ui.weightGraph.plot() for _ in range(0, created_channels)])
-        self._plot_man.reset_channels(self._weight_device_id, created_channels, self._ui.weightGraph.plot())
-
-        self._plot_man.get_plot(self._voltage_device_id).clear()
-        self._plot_man.set_plot(self._voltage_device_id, [self._ui.voltageGraph.plot() for _ in range(0, created_channels)])
-        self._plot_man.reset_channels(self._voltage_device_id, created_channels, self._ui.voltageGraph.plot()) """
