@@ -23,7 +23,7 @@ class MultiplePlotManager():
         return self._events_list_dict[device_id]
 
     def reset_channels(self, device_id, created_channels, plot_ref):
-        self.get_plot(device_id).clear()
-        self.set_plot(device_id, [plot_ref for _ in range(0, created_channels)])
+        # self.get_plot(device_id).clear()
+        # self.set_plot(device_id, [plot_ref for _ in range(0, created_channels)])
         self.get_events_list(device_id).clear()
         self.set_events_list(device_id, [EventCounter() for _ in range(0, created_channels)])

@@ -19,7 +19,6 @@ from piratscs_gui.system.logger import get_logger
 from piratscs_gui.ui.modules.module import Module
 
 from piratscs_gui.ui.modules.modpiratstemp.modpiratstemp_big_ui import Ui_ModulePiratsTempBig
-from piratscs_gui.ui.modules.Common.EventCounter import EventCounter
 from piratscs_gui.ui.modules.Common.ColorsCreator import get_colors_list
 from piratscs_gui.ui.modules.Common.MultiplePlotManager import MultiplePlotManager
 
@@ -47,8 +46,7 @@ class ModPiratsTempBigWidget(QWidget):
         log.debug(f"Received answer for  command: '{ret_val.as_dict}'")
         self._plot_man.get_plot(self._device_id).clear()
         self._plot_man.set_plot(self._device_id, [self._ui.chart.plot() for _ in range(0, created_channels)])
-        self._plot_man.get_events_list(self._device_id).clear()
-        self._plot_man.set_events_list(self._device_id, [EventCounter() for _ in range(0, created_channels)])
+        self._plot_man.reset_channels(self._device_id, created_channels, self._ui.chart.plot())
         if ret_val.error:
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.error))
             self._ui.lbl_set_channel_recvd.setStyleSheet("color: red")
