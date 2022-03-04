@@ -54,26 +54,39 @@ class ModMeasurementsBigWidget(QWidget):
             self._ui.lbl_set_channel_recvd.setText(str(ret_val.ans))
             self._ui.lbl_set_channel_recvd.setStyleSheet(self._default_label_style_sheet)
         self._ui.lbl_set_channel_recvd_on.setText(datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"))
-        self._selected_devices_channels = self._parent.backend.comm_client.modmeasurements.get_select_devices_channels().as_dict['contents']['ans']
-        temp_created_channels = len(self._selected_devices_channels[f'{self._temp_device_id}'])
-        pressure_created_channels = len(self._selected_devices_channels[f'{self._pressure_device_id}'])
-        weight_created_channels = len(self._selected_devices_channels[f'{self._weight_device_id}'])
-        voltage_created_channels = len(self._selected_devices_channels[f'{self._voltage_device_id}'])
-        self._plot_man.get_plot(self._temp_device_id).clear()
-        self._plot_man.set_plot(self._temp_device_id, [self._ui.tempGraph.plot() for _ in range(0, temp_created_channels)])
-        self._plot_man.reset_channels(self._temp_device_id, temp_created_channels, self._ui.tempGraph.plot())
-        self._plot_man.get_plot(self._pressure_device_id).clear()
-        self._plot_man.set_plot(self._pressure_device_id,
-                                [self._ui.pressureGraph.plot() for _ in range(0, pressure_created_channels)])
-        self._plot_man.reset_channels(self._pressure_device_id, pressure_created_channels, self._ui.pressureGraph.plot())
-        self._plot_man.get_plot(self._weight_device_id).clear()
-        self._plot_man.set_plot(self._weight_device_id,
-                                [self._ui.weightGraph.plot() for _ in range(0, weight_created_channels)])
-        self._plot_man.reset_channels(self._weight_device_id, weight_created_channels, self._ui.weightGraph.plot())
-        self._plot_man.get_plot(self._voltage_device_id).clear()
-        self._plot_man.set_plot(self._voltage_device_id,
-                                [self._ui.voltageGraph.plot() for _ in range(0, voltage_created_channels)])
-        self._plot_man.reset_channels(self._voltage_device_id, voltage_created_channels, self._ui.voltageGraph.plot())
+
+        self._selected_devices_channels = \
+            self._parent.backend.comm_client.modmeasurements.get_select_devices_channels().as_dict['contents']['ans']
+        log.debug(f"Selected devices and channels: {self._selected_devices_channels}")
+        if f'{self._temp_device_id}' in self._selected_devices_channels:
+            temp_created_channels = len(self._selected_devices_channels[f'{self._temp_device_id}'])
+            self._plot_man.get_plot(self._temp_device_id).clear()
+            self._plot_man.set_plot(self._temp_device_id,
+                                    [self._ui.tempGraph.plot() for _ in range(0, temp_created_channels)])
+            self._plot_man.reset_channels(self._temp_device_id, temp_created_channels, self._ui.tempGraph.plot())
+
+        if f'{self._pressure_device_id}' in self._selected_devices_channels:
+            pressure_created_channels = len(self._selected_devices_channels[f'{self._pressure_device_id}'])
+            self._plot_man.get_plot(self._pressure_device_id).clear()
+            self._plot_man.set_plot(self._pressure_device_id,
+                                    [self._ui.pressureGraph.plot() for _ in range(0, pressure_created_channels)])
+            self._plot_man.reset_channels(self._pressure_device_id, pressure_created_channels,
+                                          self._ui.pressureGraph.plot())
+
+        if f'{self._weight_device_id}' in self._selected_devices_channels:
+            weight_created_channels = len(self._selected_devices_channels[f'{self._weight_device_id}'])
+            self._plot_man.get_plot(self._weight_device_id).clear()
+            self._plot_man.set_plot(self._weight_device_id,
+                                    [self._ui.weightGraph.plot() for _ in range(0, weight_created_channels)])
+            self._plot_man.reset_channels(self._weight_device_id, weight_created_channels, self._ui.weightGraph.plot())
+
+        if f'{self._voltage_device_id}' in self._selected_devices_channels:
+            voltage_created_channels = len(self._selected_devices_channels[f'{self._voltage_device_id}'])
+            self._plot_man.get_plot(self._voltage_device_id).clear()
+            self._plot_man.set_plot(self._voltage_device_id,
+                                    [self._ui.voltageGraph.plot() for _ in range(0, voltage_created_channels)])
+            self._plot_man.reset_channels(self._voltage_device_id, voltage_created_channels,
+                                          self._ui.voltageGraph.plot())
 
     def _set_period(self):
         value = self._ui.spin_period_set.value() / 1000.0
@@ -112,7 +125,7 @@ class ModMeasurementsBigWidget(QWidget):
 
     def process_temp_async(self, async_dict):
         temp_list = async_dict
-        for n,temp_dict in enumerate(temp_list):
+        for n, temp_dict in enumerate(temp_list):
             for key, value in temp_dict.items():
                 self._plot_man.get_events_list(self._temp_device_id)[n].new_event(value)
                 x, y = self._plot_man.get_events_list(self._temp_device_id)[n].averages_chart_data
@@ -170,6 +183,7 @@ class ModMeasurementsBigWidget(QWidget):
                 if self._ui.gridLayout.itemAtPosition(j, i).widget().isChecked():
                     active_channels.append(i + j * N_COLS)
         self._ui.ledit_measurement_set.setText(",".join(str(x) for x in active_channels))
+
 
 class ModMeasurementsModule(Module):
     def __init__(self, parent=None):

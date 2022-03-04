@@ -110,10 +110,10 @@ class ModMeasurements(ModMeasurementsBase):
             if not measurements_list_str:
                 self._devices.current_devices_list = []
             elif not ',' in measurements_list_str:
-                self._devices.current_devices_list  = [int(measurements_list_str)]
+                self._devices.current_devices_list = [int(measurements_list_str)]
             else:
                 self._devices.current_devices_list = list(map(int, measurements_list_str.split(',')))
-            log.debug(self._devices.current_devices_list )
+            log.debug(self._devices.current_devices_list)
             return True
         except:
             raise Exception(f'Invalid value for select measurements ({self._devices.current_devices_list }), '
